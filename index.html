@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#e0f2fe">
+<title>小麗博士化學實驗室 · Dr. Lily's Chemistry Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3"></script>
+<!-- React 18 + htm（唔使 Babel，直接喺瀏覽器運行） -->
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+<!-- Three.js -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+<link rel="stylesheet" href="./css/app.css">
+</head>
+<body>
+<div id="root">
+  <div id="boot">
+    <div>
+      <div><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span></div>
+      <p>小麗博士化學實驗室載入中……<br>Loading Dr. Lily's Chemistry Lab…</p>
+      <p id="boot-msg" style="display:none;color:#b45309;font-size:14px;max-width:340px;margin:12px auto 0"></p>
+    </div>
+  </div>
+</div>
+<noscript>請開啟 JavaScript 先可以使用。Please enable JavaScript.</noscript>
+<script>
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+  function bootMsg(t) { var s = document.getElementById('boot-msg'); if (s) { s.style.display = 'block'; s.innerHTML = t; } }
+  setTimeout(function () { bootMsg('載入時間比平時長，請檢查網絡連線，然後重新整理頁面。<br>This is taking longer than usual. Please check your internet connection and refresh.'); }, 12000);
+  if (location.protocol === 'file:') {
+    bootMsg('請用網址打開（例如 GitHub Pages），唔好直接雙擊檔案。詳情見 README。<br>Please open this through a web address (e.g. GitHub Pages), not by double-clicking the file. See README.');
+  }
+</script>
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

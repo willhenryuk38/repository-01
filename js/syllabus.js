@@ -22,7 +22,7 @@ export const SYLLABUS = [
   ] },
   { n: 3, color: '#ea580c', icon: '🔩', zh: '金屬', en: 'Metals', subs: [
     { code: '3.1', zh: '金屬的存在和提取', en: 'Occurrence and extraction of metals', items: { zh: ['金屬喺大自然點樣存在、點樣提取'], en: ['Where metals are found and how we extract them'] } },
-    { code: '3.2', zh: '金屬的活潑性', en: 'Reactivity of metals', next: { zh: '金屬冒泡大比拼', en: 'Metal Bubble Race' },
+    { code: '3.2', zh: '金屬的活潑性', en: 'Reactivity of metals', modules: ['metalrace'],
       items: { zh: ['金屬與稀酸反應', '金屬與氧反應生成氧化物', '金屬與冷水反應', '受熱金屬與蒸汽反應', '金屬與稀氫氯酸的反應', '金屬活潑性序列及電化序', '金屬氧化物的穩定性', '置換反應'],
         en: ['Treating metals with dilute acid', 'Metals reacting with oxygen to form oxides', 'Metals reacting with cold water', 'Heated metals reacting with steam', 'Reactions of metals with dilute hydrochloric acid', 'Reactivity series and electrochemical series', 'Stability of metal oxides', 'Displacement reactions'] } },
     { code: '3.3', zh: '反應質量', en: 'Reacting masses', items: { zh: ['化合物中元素的質量百分比'], en: ['Percentage by mass of an element in a compound'] } },
@@ -36,7 +36,7 @@ export const SYLLABUS = [
     { code: '4.4', zh: '中和作用和鹽的製備', en: 'Neutralisation and preparation of salts', modules: ['neutral'], items: { zh: ['中和作用', '製備鹽'], en: ['Neutralisation', 'Preparing salts'] } },
   ] },
   { n: 5, color: '#eab308', icon: '🔋', zh: '化學電池和電解', en: 'Chemical cells and electrolysis', subs: [
-    { code: '5.1', zh: '簡單化學電池', en: 'Simple chemical cells', next: { zh: '檸檬電池', en: 'Lemon Battery' },
+    { code: '5.1', zh: '簡單化學電池', en: 'Simple chemical cells', modules: ['lemon'],
       items: { zh: ['簡單化學電池', '化學電池與電解池的比較'], en: ['Simple chemical cells', 'Comparing chemical cells and electrolytic cells'] } },
     { code: '5.2', zh: '氧化還原反應', en: 'Redox reactions', items: { zh: ['氧化和還原的分別', '常見的氧化劑', '常見的還原劑'], en: ['Differences between oxidation and reduction', 'Common oxidising agents', 'Common reducing agents'] } },
     { code: '5.3', zh: '化學電池中的反應', en: 'Reactions in chemical cells', items: { zh: ['鋅碳電池的結構', '鋅碳電池的化學', '不同乾電池的比較'], en: ['Structure of a zinc–carbon cell', 'Chemistry of a zinc–carbon cell', 'Comparing different dry cells'] } },
@@ -60,7 +60,7 @@ export const SYLLABUS = [
   ] },
   { n: 9, color: '#22c55e', icon: '🔍', zh: '檢測和分析', en: 'Detection and analysis', subs: [
     { code: '9.1', zh: '分離混合物', en: 'Separation of mixtures', modules: ['salt'], items: { zh: ['過濾、蒸發、結晶等分離方法'], en: ['Filtering, evaporating, crystallising and other separation methods'] } },
-    { code: '9.2', zh: '物質的檢測', en: 'Detection of substances', next: { zh: '焰色反應：煙花顏色嘅秘密', en: 'Flame Tests: the Secret of Firework Colours' },
+    { code: '9.2', zh: '物質的檢測', en: 'Detection of substances', modules: ['flametest'],
       items: { zh: ['焰色試驗', '實驗室常見物質的測試'], en: ['Flame test', 'Tests for common substances in the laboratory'] } },
   ] },
 ];

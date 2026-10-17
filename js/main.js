@@ -18,11 +18,14 @@ function StartOverlay({ onStart, t }) {
   </div>`;
 }
 
+// 網址路由：每個實驗都有自己嘅網址，例如 …/#/lemon（可以直接分享；iPad「返回」會返主頁）
+const idFromHash = () => { const id = decodeURIComponent(location.hash.replace(/^#\/?/, '')); return MODULES.some((m) => m.id === id) ? id : null; };
+
 function App() {
   const st = useStore(settings);
   const lang = st.lang === 'en' ? 'en' : 'zh';
   const [readMode, setReadMode] = useState(false);
-  const [lessonId, setLessonId] = useState(null);
+  const [lessonId, setLessonId] = useState(idFromHash);
   const [started, setStarted] = useState(false);
   const [tourSignal, setTourSignal] = useState(0);
 
@@ -46,8 +49,18 @@ function App() {
     setStarted(true);
     if (auto) setTourSignal((n) => n + 1);
   };
-  const open = (id) => { Speech.stop(); setLessonId(id); };
-  const back = () => { Speech.stop(); setLessonId(null); };
+  // 瀏覽器「上一頁」或者手動改網址
+  useEffect(() => {
+    const sync = () => { Speech.stop(); setLessonId(idFromHash()); };
+    window.addEventListener('popstate', sync); window.addEventListener('hashchange', sync);
+    return () => { window.removeEventListener('popstate', sync); window.removeEventListener('hashchange', sync); };
+  }, []);
+  const open = (id) => { Speech.stop(); history.pushState({ fromHome: true }, '', '#/' + id); setLessonId(id); };
+  const back = () => {
+    // 由主頁入嚟就退返一頁；直接用網址打開嘅就換走個網址
+    if (history.state && history.state.fromHome) history.back();
+    else { Speech.stop(); history.replaceState(null, '', location.pathname + location.search); setLessonId(null); }
+  };
 
   const mod = MODULES.find((m) => m.id === lessonId);
   return html`<${Ctx.Provider} value=${ctx}>

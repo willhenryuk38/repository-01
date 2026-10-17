@@ -38,6 +38,7 @@ export const Speech = (() => {
     return String(text)
       .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}️‍]/gu, '')
       .replace(/①/g, zh ? '一，' : 'one, ').replace(/②/g, zh ? '二，' : 'two, ').replace(/③/g, zh ? '三，' : 'three, ')
+      .replace(/\(III\)/g, zh ? '三' : ' three').replace(/\(II\)/g, zh ? '二' : ' two')
       .replace(/≈/g, zh ? '大約' : 'about ')
       .replace(/→/g, zh ? '變成' : ' becomes ')
       .replace(/[＋+]/g, zh ? '加' : ' plus ')

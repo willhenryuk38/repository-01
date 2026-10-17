@@ -4,9 +4,9 @@ import * as K from '../js/kit3d.js';
 const { THREE, TABLE_Y: T, V2, V3 } = K;
 
 const SOL = [
-  { id: 'cu', zh: '含銅溶液', en: 'Copper solution', liq: '#5ab8ea', after: '#b9def2', ppt: '#2d7fd3', pzh: '藍色', pen: 'blue' },
-  { id: 'fe3', zh: '含鐵溶液（黃）', en: 'Iron solution (yellow)', liq: '#e6b043', after: '#f3e2b8', ppt: '#9a4a1c', pzh: '紅啡色', pen: 'reddish-brown' },
-  { id: 'fe2', zh: '含鐵溶液（綠）', en: 'Iron solution (green)', liq: '#bfe3a0', after: '#e4f1d8', ppt: '#55703a', pzh: '暗綠色', pen: 'dirty green' },
+  { id: 'cu', zh: '含銅溶液', en: 'Copper solution', tag: { zh: '含銅溶液', en: 'Copper' }, liq: '#5ab8ea', after: '#b9def2', ppt: '#2d7fd3', pzh: '藍色', pen: 'blue' },
+  { id: 'fe3', zh: '鐵(III) 溶液（黃色）', en: 'Iron(III) solution (yellow)', tag: { zh: '鐵(III) 溶液', en: 'Iron(III)' }, liq: '#e6b043', after: '#f3e2b8', ppt: '#9a4a1c', pzh: '紅啡色', pen: 'reddish-brown' },
+  { id: 'fe2', zh: '鐵(II) 溶液（淺綠色）', en: 'Iron(II) solution (pale green)', tag: { zh: '鐵(II) 溶液', en: 'Iron(II)' }, liq: '#bfe3a0', after: '#e4f1d8', ppt: '#55703a', pzh: '暗綠色', pen: 'dirty green' },
 ];
 
 function Panel({ S }) {
@@ -39,8 +39,9 @@ function Art() {
 const events = {
   litmus: { zh: '紅色石蕊試紙一蘸落稀氫氧化鈉溶液，就變咗藍色！所以稀氫氧化鈉係鹼。', en: 'As soon as the red litmus paper dips into the sodium hydroxide solution, it turns blue! So sodium hydroxide is an alkali.' },
   pre_cu: { zh: '哇！藍色溶液入面突然出現好多藍色、好似棉花咁嘅固體。佢叫做「沉澱」。', en: 'Wow! Lots of fluffy blue solid suddenly appears in the blue solution. It is called a precipitate.' },
-  pre_fe3: { zh: '黃色溶液變出紅啡色嘅沉澱，好似鐵鏽嘅顏色！', en: 'The yellow solution makes a reddish-brown precipitate, the colour of rust!' },
-  pre_fe2: { zh: '淺綠色溶液變出暗綠色嘅沉澱。放耐咗，佢仲會慢慢變啡色㗎。', en: 'The pale green solution makes a dirty green precipitate. If you leave it, it slowly turns brown.' },
+  pre_fe3: { zh: '黃色嘅鐵(III) 溶液變出紅啡色嘅沉澱，好似鐵鏽嘅顏色！', en: 'The yellow iron(III) solution makes a reddish-brown precipitate, the colour of rust!' },
+  pre_fe2: { zh: '淺綠色嘅鐵(II) 溶液變出暗綠色嘅沉澱。放耐咗，空氣入面嘅氧氣會將佢慢慢變成鐵(III)，所以會變啡色，同鐵生鏽一樣。', en: 'The pale green iron(II) solution makes a dirty green precipitate. If you leave it, oxygen in the air slowly turns it into iron(III), so it goes brown, just like rusting iron.' },
+  feWhy: { zh: '兩支都係鐵，點解一黃一綠？因為鐵原子可以交出兩粒電子，變成「鐵(II) 離子」，又叫亞鐵離子，溶液係淺綠色；亦可以交出三粒電子，變成「鐵(III) 離子」，溶液係黃色。交出幾多粒電子唔同，溶液顏色唔同，遇到鹼變出嘅沉澱都唔同：鐵(II) 係暗綠色，鐵(III) 係紅啡色。', en: 'Both tubes contain iron, so why is one yellow and one green? An iron atom can give away two electrons to become an iron(II) ion, which makes a pale green solution. Or it can give away three electrons to become an iron(III) ion, which makes a yellow solution. Because they lose a different number of electrons, their solutions are different colours, and they make different precipitates with alkali: iron(II) gives dirty green, and iron(III) gives reddish-brown.' },
   allPre: { zh: '三支試管都試晒喇！三種唔同顏色嘅沉澱，話俾我哋知溶液入面有咩金屬。', en: 'All three tubes are done! The three colours tell us which metal is in each solution.' },
   soap: { zh: '番鹼係弱鹼性，可以將油污拉落水度沖走。', en: 'Soap is weakly alkaline. It helps pull grease into the water so it can be washed away.' },
   soda: { zh: '梳打粉係弱鹼，可以用嚟焗蛋糕，令蛋糕發起。', en: 'Baking soda is a weak alkali. It is used in baking to help cakes rise.' },
@@ -61,12 +62,12 @@ export default {
     { tag: 'observe', zh: '紅色石蕊試紙變藍色！記住呢個口訣：「酸令藍變紅，鹼令紅變藍」。', en: 'The red litmus turns blue! Remember: acids turn blue litmus red, and alkalis turn red litmus blue.' },
     { tag: 'try', action: { id: 'pre', events: ['pre_'] }, zh: '鹼遇到某啲含金屬嘅溶液，會「變出」有顏色嘅固體。將稀氫氧化鈉滴瓶拖去三支試管，逐支試！',
       en: 'When an alkali meets certain solutions containing metals, it makes a coloured solid appear. Drag the sodium hydroxide dropper to each of the three tubes!' },
-    { tag: 'observe', zh: '三支試管變出三種顏色嘅固體：藍色、紅啡色同暗綠色。呢啲由溶液入面突然出現、睇得見嘅固體，叫做「沉澱」。顏色好似指紋咁，話俾我哋知溶液入面係銅定係鐵。',
-      en: 'The three tubes make three different coloured solids: blue, reddish-brown and dirty green. A solid that suddenly appears out of a solution is called a precipitate. Like a fingerprint, its colour tells us whether the solution has copper or iron in it.' },
+    { tag: 'observe', zh: '三支試管變出三種顏色嘅固體：藍色、紅啡色同暗綠色。呢啲由溶液入面突然出現、睇得見嘅固體，叫做「沉澱」。顏色好似指紋咁，話俾我哋知溶液入面係銅定係鐵。兩支鐵溶液顏色唔同，係因為一支係鐵(II)，一支係鐵(III)。可以撳「點解兩支鐵溶液唔同色？」聽詳細解釋。',
+      en: 'The three tubes make three different coloured solids: blue, reddish-brown and dirty green. A solid that suddenly appears out of a solution is called a precipitate. Like a fingerprint, its colour tells us whether the solution has copper or iron in it. The two iron solutions look different because one contains iron(II) and the other iron(III). Tap "Why are the iron solutions different colours?" to find out more.' },
     { tag: 'feynman', zh: '點解鹼摸落滑潺潺？因為鹼會同你皮膚表面嘅油脂反應，變咗少少肥皂！即係話，鹼其實喺度蝕緊你嘅皮膚。所以實驗室嘅鹼，千祈唔好摸。',
       en: 'Why do alkalis feel slippery? Because the alkali reacts with the oils on your skin and turns a little of it into soap! That means the alkali is actually attacking your skin. So never touch lab alkalis.' },
-    { tag: 'first', zh: '由最基本諗起：鹼溶喺水會放出「氫氧根離子」。佢同酸嘅氫離子係一對：一見面就會結合變成水，所以鹼可以抵消酸。氫氧根離子遇到銅、鐵呢類金屬離子，又會手拖手變成唔溶喺水嘅固體，即係沉澱。',
-      en: 'Back to basics: alkalis release hydroxide ions in water. Hydroxide ions and the hydrogen ions from acids are a pair: when they meet, they join to make water, which is why alkalis can cancel out acids. When hydroxide ions meet metal ions like copper or iron, they hold hands and make a solid that does not dissolve: a precipitate.' },
+    { tag: 'first', zh: '由最基本諗起：鹼溶喺水會放出「氫氧根離子」。佢同酸嘅氫離子係一對：一見面就會結合變成水，所以鹼可以抵消酸。氫氧根離子遇到銅、鐵呢類金屬離子，又會手拖手變成唔溶喺水嘅固體，即係沉澱。同一種金屬可以有唔同嘅離子，例如鐵(II) 同鐵(III)，所以沉澱顏色都唔同。',
+      en: 'Back to basics: alkalis release hydroxide ions in water. Hydroxide ions and the hydrogen ions from acids are a pair: when they meet, they join to make water, which is why alkalis can cancel out acids. When hydroxide ions meet metal ions like copper or iron, they hold hands and make a solid that does not dissolve: a precipitate. The same metal can form different ions, such as iron(II) and iron(III), so their precipitates are different colours.' },
     { tag: 'life', zh: '生活應用：番鹼幫手洗走油污；梳打粉用嚟焗蛋糕；通渠水溶解塞住水渠嘅頭髮同油脂。檢驗人員亦會用沉澱嘅顏色，查出水入面有冇金屬。',
       en: 'Everyday life: soap helps wash away grease; baking soda helps cakes rise; drain cleaner dissolves hair and grease that block drains. Testers also use precipitate colours to check whether water contains metals.' },
     { tag: 'quiz', zh: '最後，一齊做個思考挑戰！', en: 'Finally, a thinking challenge!' },
@@ -86,6 +87,7 @@ export default {
   tools: [
     { id: 'l', label: { zh: '用紅色石蕊試紙', en: 'Use red litmus paper' }, run: (c) => c.litmus() },
     { id: 'p', label: { zh: '加鹼落下一支試管', en: 'Add alkali to the next tube' }, run: (c) => c.addNext() },
+    { id: 'w', label: { zh: '🔍 點解兩支鐵溶液唔同色？', en: '🔍 Why are the iron solutions different colours?' }, run: (c) => c.whyIron() },
   ],
   Panel,
 
@@ -107,8 +109,9 @@ export default {
       const v = K.makeVessel(K.tubeProfile(0.17, 1.25), { liquidColor: s.liq, level: LV, opacity: 0.85 });
       v.group.position.set(xs[i], TY, zT); scene.add(v.group);
       const cloud = K.makeCloud(v.group, { color: s.ppt, count: 80, r: 0.11, yMin: 0.42, yMax: 0.64, yBottom: 0.06 });
-      const lab = api.label(s, { border: s.ppt, h: 0.17 }); lab.position.set(xs[i], T + 1.55, zT);
-      api.tap(v.group, () => (!S[s.id] ? addTo(i) : api.emit('tube')), { zh: s.zh, en: s.en }, [lab]);
+      // 3D 標籤用短名，記錄表先用全名
+      const lab = api.label(s.tag, { border: s.ppt, h: 0.17 }); lab.position.set(xs[i], T + 1.55, zT);
+      api.tap(v.group, () => (!S[s.id] ? addTo(i) : api.emit(s.id === 'cu' ? 'tube' : 'feWhy')), { zh: s.zh, en: s.en }, [lab]);
       return { ...v, cloud, mouth: V3(xs[i], TY + 1.25, zT) };
     });
     // 右：家居鹼
@@ -170,6 +173,7 @@ export default {
       cam: { pos: [0.3, 4.0, 5.2], target: [0.3, 1.45, -0.1], fitW: 6.9 },
       litmus: () => (S.litmus ? null : hLit.dropOn('bk')),
       addNext: () => { const i = nextI(); if (i >= 0 && !busy) hDr.dropOn('t' + i); },
+      whyIron: () => api.emit('feWhy'),
       async demo(id) {
         while (busy) await tw.wait(0.1);
         if (id === 'litmus' && !S.litmus) await hLit.dropOn('bk');

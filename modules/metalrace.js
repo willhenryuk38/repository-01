@@ -46,7 +46,7 @@ function Art() {
 const events = {
   m_mg: { zh: '鎂一落去就冒出大量泡泡，好似汽水咁！鎂仲會慢慢變細，最後消失，燒杯摸落仲會暖暖哋。', en: 'The magnesium fizzes like mad, just like a fizzy drink! It slowly shrinks until it disappears, and the beaker gets warm.' },
   m_zn: { zh: '鋅都有冒泡，不過冇鎂咁勁，係穩定噉一粒粒冒出嚟。', en: 'The zinc bubbles too, but not as wildly as magnesium. The bubbles come up at a steady pace.' },
-  m_fe: { zh: '鐵好慢先冒出幾粒泡泡，要好細心先睇到。過一陣，溶液仲會變成淡淡嘅綠色。', en: 'The iron only makes a few slow bubbles, so look carefully. After a while, the solution turns a very pale green.' },
+  m_fe: { zh: '鐵好慢先冒出幾粒泡泡，要好細心先睇到。過一陣，溶液仲會變成淡淡嘅綠色，呢個係鐵(II) 離子嘅顏色。', en: 'The iron only makes a few slow bubbles, so look carefully. After a while, the solution turns a very pale green, which is the colour of iron(II) ions.' },
   m_cu: { zh: '銅放咗落去，等極都冇泡泡！銅同稀鹽酸唔會反應。', en: 'The copper is in, but no matter how long we wait, there are no bubbles! Copper does not react with dilute hydrochloric acid.' },
   raceAll: { zh: '四種金屬都放晒落去喇！比較下邊杯泡泡最多、最快。', en: 'All four metals are in! Compare which beaker bubbles the most and the fastest.' },
   rank_1: { zh: '金牌：鎂！佢冒泡最快，係四種金屬入面最活潑嘅。', en: 'Gold medal: magnesium! It bubbles fastest, so it is the most reactive of the four.' },

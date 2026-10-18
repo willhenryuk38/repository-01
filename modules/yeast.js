@@ -125,7 +125,7 @@ export default {
     const pack = new THREE.Mesh(new K.RoundedBoxGeometry(0.34, 0.42, 0.08, 2, 0.02), K.stdMat('#d6a85c', 0.7)); pack.position.y = 0.21; yeast.add(pack);
     const lY = api.label({ zh: '酵母', en: 'Yeast' }, { border: '#b45309', h: 0.17 }); lY.position.set(0, -0.02, 0.35); yeast.add(lY);
     const sugar = new THREE.Group(); sugar.position.set(-1.65, T, 1.0); scene.add(sugar);
-    const bowl = new THREE.Mesh(new THREE.SphereGeometry(0.2, 24, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), K.stdMat('#e2e8f0', 0.4)); bowl.rotation.x = Math.PI; bowl.position.y = 0.2; sugar.add(bowl);
+    const bowl = new THREE.Mesh(new THREE.SphereGeometry(0.2, 24, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#e2e8f0', roughness: 0.4, side: THREE.DoubleSide })); bowl.position.y = 0.2; sugar.add(bowl);
     const heap = new THREE.Mesh(new THREE.SphereGeometry(0.17, 20, 8), K.stdMat('#ffffff', 0.9)); heap.scale.y = 0.35; heap.position.y = 0.19; sugar.add(heap);
     const spoon = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.4, 8), K.stdMat('#cbd5e1', 0.3, 0.8)); spoon.position.set(0.08, 0.32, 0); spoon.rotation.z = -0.6; sugar.add(spoon);
     const lS = api.label({ zh: '糖', en: 'Sugar' }, { border: '#94a3b8', h: 0.17 }); lS.position.set(0, -0.02, 0.38); sugar.add(lS);

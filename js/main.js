@@ -100,6 +100,7 @@ function App() {
   const mode = mod && route.mode === 'challenge' && CHALLENGES[mod.id] && isChallengeOpen(mod.id, prog) ? 'challenge' : 'basic';
   return html`<${Ctx.Provider} value=${ctx}>
     <div className=${readMode ? 'readmode-on' : ''}>
+      <a href="#main" className="skip-link" onClick=${(e) => { e.preventDefault(); const m = document.getElementById('main'); if (m) m.focus(); }}>${ctx.t('skipToMain')}</a>
       ${mod ? html`<${LessonView} key=${mod.id + mode} mod=${mod} mode=${mode} onBack=${back} />`
         : route.view === 'badges' ? html`<${BadgesPage} onBack=${back} />`
         : route.view === 'cert' ? html`<${CertPage} key=${route.sub} kind=${route.sub} onBack=${back} />`

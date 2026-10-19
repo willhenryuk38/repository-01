@@ -76,7 +76,7 @@ export function BadgesPage({ onBack }) {
   const intro = t('badgesIntro', { g: got, n: BADGES.length });
   return html`<div className="app-h flex flex-col">
     <${TopBar} title=${t('badgesTitle')} left=${html`<${Btn} label=${t('back')} onClick=${onBack} className="h-11 px-3 bg-white ring-2 ring-slate-200 text-slate-700"><span className="text-xl leading-none" aria-hidden="true">‹</span><span className="hidden sm:inline">${t('back')}</span><//>`} />
-    <main id="main" className="flex-1 overflow-y-auto">
+    <main id="main" tabIndex="-1" className="outline-none flex-1 overflow-y-auto">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-5 pb-28 space-y-6">
         <div className="flex items-start gap-2"><p className="flex-1 text-lg font-bold text-slate-700">🏅 ${intro}</p><${Spk} text=${intro} id="badges-intro" /></div>
         <ul className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
@@ -137,7 +137,7 @@ export function CertPage({ kind, onBack }) {
   const body = c.kind === 'graduate' ? t('certGradBody') : c.kind === 'challenge' ? t('certChBody') : t('certTopicBody');
   return html`<div className="app-h flex flex-col">
     <${TopBar} title=${t('certsTitle')} left=${bar} />
-    <main id="main" className="flex-1 overflow-y-auto">
+    <main id="main" tabIndex="-1" className="outline-none flex-1 overflow-y-auto">
       <div className="max-w-4xl mx-auto px-4 py-5 pb-28 space-y-4">
         ${!c.ok ? html`<div className="rounded-3xl bg-white ring-2 ring-slate-200 p-6 text-center space-y-2">
             <div className="text-5xl" aria-hidden="true">🔒</div>

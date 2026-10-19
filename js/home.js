@@ -1,5 +1,5 @@
 /* 主頁：導師介紹、開放中嘅實驗、進度、完整課程地圖、自動導覽 */
-import { html, useApp, useState, useEffect, useRef, useCallback, joinSay, sleep, progress, settings, useStore, starCount, isChallengeOpen } from './lib.js';
+import { html, useApp, useState, useEffect, useRef, useCallback, joinSay, sleep, progress, settings, useStore, starCount, isChallengeOpen, ink } from './lib.js';
 import { CHALLENGES } from './challenges.js';
 import { Speech } from './speech.js';
 import { Btn, Spk, Tutor, TopBar, SafetyNote, Stars } from './ui.js';
@@ -35,7 +35,7 @@ function LessonCard({ mod, onOpen, rec, focus }) {
   const Art = mod.Art;
   return html`<article data-tour=${'card-' + mod.id} className=${`pop-in rounded-3xl bg-white shadow-lg ring-1 ring-slate-100 overflow-hidden flex flex-col ${focus ? 'tour-focus' : ''}`}>
     <div className="h-32 grid place-items-center relative" style=${{ background: mod.bg }}>
-      <span className="absolute left-3 top-3 px-2.5 py-1 rounded-full text-xs font-black text-white shadow" style=${{ background: mod.accent }}>${t('topicWord')} ${mod.topics.join(' · ')}</span>
+      <span className="absolute left-3 top-3 px-2.5 py-1 rounded-full text-xs font-black text-white shadow" style=${{ background: ink(mod.accent) }}>${t('topicWord')} ${mod.topics.join(' · ')}</span>
       <span className=${`absolute right-3 top-3 px-2.5 py-1 rounded-full text-xs font-black ${CHIP[st]}`}>${st === 'done' ? '✅ ' : ''}${t('st_' + st)}</span>
       ${Art ? html`<${Art} />` : null}
     </div>
@@ -47,7 +47,7 @@ function LessonCard({ mod, onOpen, rec, focus }) {
       <p className="text-slate-600 leading-relaxed">${pick(mod.desc)}</p>
       <div className="flex items-center gap-2"><${Stars} rec=${rec} /><span className="text-xs text-slate-400 font-bold">${starCount(rec)} / 3</span></div>
       <${Btn} label=${st === 'done' ? t('replay') : st === 'started' ? t('continue') : t('start')} onClick=${() => onOpen(mod.id)}
-        className="mt-auto w-full py-3 text-lg text-white shadow-md" style=${{ background: mod.accent }}>${st === 'done' ? t('replay') : st === 'started' ? t('continue') : t('start')} ›<//>
+        className="mt-auto w-full py-3 text-lg text-white shadow-md" style=${{ background: ink(mod.accent) }}>${st === 'done' ? t('replay') : st === 'started' ? t('continue') : t('start')} ›<//>
       <${ChallengeBtn} mod=${mod} rec=${rec} onOpen=${onOpen} />
     </div>
   </article>`;
@@ -87,7 +87,7 @@ function Roadmap({ prog, onOpen, focus }) {
                 <p className="ml-11 mt-0.5 text-xs text-slate-400 leading-relaxed">${s.items[lang].join(' · ')}</p>
                 ${s.next ? html`<p className="ml-11 mt-1 text-xs font-bold text-amber-700">${t('comingName')}${pick(s.next)}</p>` : null}
                 ${mods.length ? html`<div className="ml-11 mt-1.5 flex flex-wrap gap-1.5">
-                  ${mods.map((m) => html`<${Btn} key=${m.id} label=${pick(m.title)} onClick=${() => onOpen(m.id)} className="!min-h-9 px-3 text-sm text-white" style=${{ background: m.accent }}>${pick(m.title)} ›<//>`)}
+                  ${mods.map((m) => html`<${Btn} key=${m.id} label=${pick(m.title)} onClick=${() => onOpen(m.id)} className="!min-h-9 px-3 text-sm text-white" style=${{ background: ink(m.accent) }}>${pick(m.title)} ›<//>`)}
                   ${mods.map((m) => html`<${ChallengeBtn} key=${'c' + m.id} mod=${m} rec=${prog[m.id]} onOpen=${onOpen} small=${true} />`)}
                 </div>` : null}
               </li>`;
@@ -142,7 +142,7 @@ export function Home({ onOpen, tourSignal }) {
   return html`<div className="app-h flex flex-col">
     <${TopBar} title=${t('appTitle')} titleSpeak=${joinSay(lang, [t('appTitle'), t('appSub')])}
       left=${html`<div aria-hidden="true" className="w-10 h-10 shrink-0 rounded-2xl bg-gradient-to-br from-sky-400 to-violet-500 grid place-items-center text-white text-xl shadow">⚗</div>`} />
-    <main className="flex-1 overflow-y-auto">
+    <main id="main" tabIndex="-1" className="flex-1 overflow-y-auto outline-none">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-5 sm:py-8 pb-28 space-y-7">
         <p className="text-slate-500 font-bold">${t('appSub')}</p>
         <div data-tour="hello" className=${`rounded-[2rem] p-4 sm:p-6 bg-gradient-to-br from-sky-100 via-white to-violet-100 ring-1 ring-sky-100 shadow-inner space-y-4 ${focus === 'hello' ? 'tour-focus' : ''}`}>
@@ -156,7 +156,7 @@ export function Home({ onOpen, tourSignal }) {
           <div className="flex items-start gap-2"><h2 className="flex-1 font-black text-amber-900">${t('taskBanner')}</h2>
             <${Spk} size="sm" text=${joinSay(lang, [t('taskBanner'), ...task.map((m) => pick(m.title))])} id="task-banner" /></div>
           <div className="flex flex-wrap gap-2">
-            ${task.map((m) => html`<${Btn} key=${m.id} label=${pick(m.title)} onClick=${() => onOpen(m.id)} className="px-3 text-white shadow" style=${{ background: m.accent }}>${statusOf(prog[m.id]) === 'done' ? '✅ ' : ''}${pick(m.title)} ›<//>`)}
+            ${task.map((m) => html`<${Btn} key=${m.id} label=${pick(m.title)} onClick=${() => onOpen(m.id)} className="px-3 text-white shadow" style=${{ background: ink(m.accent) }}>${statusOf(prog[m.id]) === 'done' ? '✅ ' : ''}${pick(m.title)} ›<//>`)}
             <${Btn} label=${t('taskClear')} onClick=${() => settings.set({ task: null })} className="px-3 bg-white ring-2 ring-amber-200 text-amber-800">${t('taskClear')}<//>
           </div>
         </section>` : null}

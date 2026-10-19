@@ -52,6 +52,17 @@ export function markProgress(id, patch = {}) {
 export const isChallengeOpen = (id, prog = progress.get()) => settings.get().challengeAll || (prog[id] && prog[id].status === 'done');
 export const starCount = (rec) => (rec && rec.stars ? ['finish', 'self', 'quiz'].filter((k) => rec.stars[k]).length : 0);
 
+/* ---------- 白字底色：將實驗主題色加深，直至同白字對比度 ≥ 4.5（WCAG AA） ---------- */
+const lum = (h) => { const v = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+const inkCache = {};
+export function ink(hex) {
+  if (!/^#[0-9a-f]{6}$/i.test(hex || '')) return hex;
+  if (inkCache[hex]) return inkCache[hex];
+  let rgb = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)), out = hex;
+  for (let k = 0; k < 20 && 1.05 / (lum(out) + 0.05) < 4.5; k++) { rgb = rgb.map((c) => Math.round(c * 0.9)); out = '#' + rgb.map((c) => c.toString(16).padStart(2, '0')).join(''); }
+  return (inkCache[hex] = out);
+}
+
 /* ---------- 煙花訊號 ---------- */
 const fxSubs = new Set();
 export const fx = { fire(kind = 'big') { fxSubs.forEach((f) => f(kind)); }, on(f) { fxSubs.add(f); return () => fxSubs.delete(f); } };

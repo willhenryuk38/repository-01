@@ -64,7 +64,7 @@ export function SharePage({ onBack }) {
   const how = t('shareHow');
   return html`<div className="app-h flex flex-col">
     <${TopBar} title=${t('shareTitle')} left=${html`<${Btn} label=${t('back')} onClick=${onBack} className="h-11 px-3 bg-white ring-2 ring-slate-200 text-slate-700"><span className="text-xl leading-none" aria-hidden="true">‹</span><span className="hidden sm:inline">${t('back')}</span><//>`} />
-    <main id="main" className="flex-1 overflow-y-auto">
+    <main id="main" tabIndex="-1" className="outline-none flex-1 overflow-y-auto">
       <div className="max-w-2xl mx-auto px-4 py-5 pb-28 space-y-4">
         <div className="flex items-start gap-2"><p className="flex-1 text-slate-700 leading-relaxed">${how}</p><${Spk} text=${how} id="share-how" /></div>
         <label className="block rounded-2xl bg-white ring-1 ring-slate-200 p-3"><span className="block font-bold text-slate-700 mb-1">${t('setNickname')}</span>

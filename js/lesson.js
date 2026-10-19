@@ -1,7 +1,7 @@
 /* =====================================================================
    實驗頁：步驟引擎、動作（示範俾我睇）、自動播放、語音階段規則、思考挑戰
    ===================================================================== */
-import { html, useApp, useState, useEffect, useRef, useCallback, useMemo, joinSay, sleep, fx, markProgress, settings, useStore } from './lib.js';
+import { html, useApp, useState, useEffect, useRef, useCallback, useMemo, joinSay, sleep, fx, markProgress, settings, useStore, ink } from './lib.js';
 import { CHALLENGES } from './challenges.js';
 import { ChemText } from './chem.js';
 import { Speech } from './speech.js';
@@ -20,7 +20,7 @@ function Quiz({ quiz, accent, onAnswer, onHome, qi = 0, qn = 1, onNext, finishTe
   const fb = ans !== null ? joinSay(lang, [ok ? t('correctTitle') : t('wrongTitle'), pick(ok ? quiz.right : quiz.wrong)]) : '';
   const choose = (i) => { setAns(i); onAnswer(i, i === quiz.correct); };
   return html`<section className="pop-in rounded-3xl bg-gradient-to-br from-amber-50 to-pink-50 ring-2 ring-amber-200 p-4 space-y-3">
-    <div className="flex items-start gap-2"><h3 className="flex-1 font-black text-amber-700 text-lg">🌟 ${t('quizTitle')}${qLabel ? html` <span className="text-sm text-amber-600">· ${qLabel}</span>` : null}</h3><${Spk} size="sm" text=${sayAll} id=${'quiz-q' + qi} /></div>
+    <div className="flex items-start gap-2"><h2 className="flex-1 font-black text-amber-700 text-lg">🌟 ${t('quizTitle')}${qLabel ? html` <span className="text-sm text-amber-600">· ${qLabel}</span>` : null}</h2><${Spk} size="sm" text=${sayAll} id=${'quiz-q' + qi} /></div>
     <p className="font-bold text-slate-800 leading-relaxed text-[17px]"><${ChemText} text=${q} /></p>
     <div className="grid gap-2">
       ${opts.map((o, i) => {
@@ -28,7 +28,7 @@ function Quiz({ quiz, accent, onAnswer, onHome, qi = 0, qn = 1, onNext, finishTe
         const cls = ans === null ? 'bg-white ring-2 ring-slate-200 hover:ring-sky-300'
           : chosen && right ? 'bg-emerald-100 ring-2 ring-emerald-400' : chosen ? 'bg-rose-100 ring-2 ring-rose-300' : 'bg-white ring-2 ring-slate-100 opacity-70';
         return html`<${Btn} key=${i} label=${`${L[i]}. ${o}`} disabled=${ok} onClick=${() => choose(i)} className=${`w-full px-3 py-2 text-left !justify-start ${cls}`}>
-          <span className="w-8 h-8 shrink-0 rounded-full grid place-items-center text-white font-black" style=${{ background: accent }}>${L[i]}</span>
+          <span className="w-8 h-8 shrink-0 rounded-full grid place-items-center text-white font-black" style=${{ background: ink(accent) }}>${L[i]}</span>
           <span className="flex-1 text-left text-slate-800 leading-snug"><${ChemText} text=${o} /></span>
         <//>`;
       })}
@@ -38,7 +38,7 @@ function Quiz({ quiz, accent, onAnswer, onHome, qi = 0, qn = 1, onNext, finishTe
         <p className="flex-1 leading-relaxed text-slate-800"><b>${ok ? t('correctTitle') : t('wrongTitle')}</b> <${ChemText} text=${pick(ok ? quiz.right : quiz.wrong)} /></p>
         <${Spk} size="sm" text=${fb} id=${'quiz-fb'} />
       </div>
-      ${ok && !last ? html`<${Btn} label=${t('nextQ')} onClick=${onNext} className="mt-2 w-full text-white shadow" style=${{ background: accent }}>${t('nextQ')} ›<//>`
+      ${ok && !last ? html`<${Btn} label=${t('nextQ')} onClick=${onNext} className="mt-2 w-full text-white shadow" style=${{ background: ink(accent) }}>${t('nextQ')} ›<//>`
         : ok ? html`<div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-emerald-200">
           <div className="flex items-start gap-2"><p className="flex-1"><b className="text-emerald-700">🎉 ${t('finishTitle')}</b> ${finishText || t('finishText')}</p><${Spk} size="sm" text=${joinSay(lang, [t('finishTitle'), finishText || t('finishText')])} id="finish" /></div>
           <${Btn} label=${t('backHome')} onClick=${onHome} className="mt-2 w-full bg-emerald-500 text-white shadow" />
@@ -72,7 +72,7 @@ function TermList({ terms }) {
   const { t, lang } = useApp();
   const say = joinSay(lang, [t('tag_term'), ...terms.map((x) => (lang === 'zh' ? `${x.zh}，英文叫 ${x.en}` : x.en))]);
   return html`<section className="rounded-3xl bg-indigo-50 ring-1 ring-indigo-200 p-3 sm:p-4">
-    <div className="flex items-center gap-2 mb-1"><h3 className="flex-1 font-black text-indigo-700">📘 ${t('tag_term')}</h3><${Spk} size="sm" text=${say} id="terms" /></div>
+    <div className="flex items-center gap-2 mb-1"><h2 className="flex-1 font-black text-indigo-700">📘 ${t('tag_term')}</h2><${Spk} size="sm" text=${say} id="terms" /></div>
     <ul className="grid sm:grid-cols-2 gap-1.5">${terms.map((x, i) => html`<li key=${i} className="rounded-xl bg-white px-3 py-1.5 ring-1 ring-indigo-100">
       <b className="text-slate-800"><${ChemText} text=${x.zh} /></b> <span className="text-slate-500 text-sm" lang="en-GB">${x.en}</span></li>`)}</ul>
   </section>`;
@@ -222,13 +222,13 @@ export function LessonView({ mod, onBack, mode = 'basic' }) {
   else if (demoing) nextBtn = html`<${Btn} label=${t('demoing')} disabled=${true} className="px-4 bg-slate-200 text-slate-600" />`;
   else if (pending) nextBtn = html`<${Btn} label=${t('demo')} onClick=${() => { poke(); demoThenNext(); }} className="px-4 text-white shadow bg-amber-500">▶ ${t('demo')}<//>`;
   else nextBtn = html`<${Btn} label=${t('next')} disabled=${step === total - 1} onClick=${() => { poke(); go(step + 1); }}
-      className=${`px-4 text-white shadow ${cur.action ? 'pulse-go' : ''}`} style=${{ background: cur.action ? '#10b981' : mod.accent }}><span className="hidden sm:inline">${t('next')}</span> ›<//>`;
+      className=${`px-4 text-white shadow ${cur.action ? 'pulse-go' : ''}`} style=${{ background: ink(cur.action ? '#10b981' : mod.accent) }}><span className="hidden sm:inline">${t('next')}</span> ›<//>`;
 
   return html`<div className="app-h flex flex-col">
     <${TopBar} title=${ch ? `${t('challengeTag')}：${pick(mod.title)}` : pick(mod.title)}
       left=${html`<${Btn} label=${t('back')} onClick=${onBack} className="h-11 px-3 bg-white ring-2 ring-slate-200 text-slate-700"><span className="text-xl leading-none" aria-hidden="true">‹</span><span className="hidden sm:inline">${t('back')}</span><//>`} />
     <div className="lesson-main">
-      <div className="stage-wrap" style=${{ background: mod.bg }}>
+      <div className="stage-wrap" role="region" aria-label=${t('stageAlt', { t: pick(mod.title) })} style=${{ background: mod.bg }}>
         <${ThreeStage} mod=${mod} lang=${lang} readMode=${readMode} ctrlRef=${ctrl} onEvent=${onEvent} onReadLabel=${onReadLabel} onInteract=${poke} hintId=${hintId} />
         ${tips ? html`<${GestureTips} onClose=${() => { setTips(false); settings.set({ tipsSeen: true }); }} />` : null}
         <div className="absolute right-3 top-3 z-10 flex flex-col gap-2">
@@ -236,7 +236,7 @@ export function LessonView({ mod, onBack, mode = 'basic' }) {
           <${Btn} label=${t('showTips')} onClick=${() => setTips((v) => !v)} className="h-11 px-3 bg-white/95 text-slate-700 shadow ring-1 ring-slate-200 text-sm">❓ <span className="hidden sm:inline">${t('showTips')}</span><//>
         </div>
       </div>
-      <aside ref=${asideRef} className="lesson-aside bg-white/60 backdrop-blur border-t border-sky-100">
+      <main ref=${asideRef} id="main" tabIndex="-1" aria-label=${t('stepWord')} className="lesson-aside bg-white/60 backdrop-blur border-t border-sky-100 outline-none">
         <div className="p-3 sm:p-4 space-y-3 pb-28">
           <${Tutor} tag=${cur.tag} text=${pick(cur)} id=${'step:' + mod.id + ':' + step} sayText=${stepSay} />
           ${cur.eq ? html`<${EquationCard} key=${'eq' + step} eqs=${cur.eq} />` : null}
@@ -262,18 +262,18 @@ export function LessonView({ mod, onBack, mode = 'basic' }) {
             accent=${ch ? '#4f46e5' : mod.accent} onAnswer=${onAnswer} onHome=${onBack} />` : null}
 
           <section className="rounded-3xl bg-white/85 ring-1 ring-slate-200 p-3 sm:p-4 space-y-2">
-            <div className="flex items-center gap-2"><h3 className="flex-1 font-black text-slate-700">🧪 ${t('tools')}</h3><${Spk} size="sm" text=${joinSay(lang, [t('tools'), t('toolsHint')])} id="toolhint" /></div>
+            <div className="flex items-center gap-2"><h2 className="flex-1 font-black text-slate-700">🧪 ${t('tools')}</h2><${Spk} size="sm" text=${joinSay(lang, [t('tools'), t('toolsHint')])} id="toolhint" /></div>
             <p className="text-sm text-slate-500">${t('toolsHint')}</p>
             ${Panel ? html`<${Panel} S=${S} ctrl=${ctrl} step=${step} />` : null}
             <div className="flex flex-wrap gap-2">
               ${tools.map((x) => html`<${Btn} key=${x.id} label=${pick(x.label)} disabled=${demoing || (x.disabled && x.disabled(S))} onClick=${() => { poke(); ctrl.current && x.run(ctrl.current); }}
-                className=${`px-3 py-2 shadow-sm ${x.primary ? 'text-white' : 'bg-white ring-2 ring-slate-200 text-slate-700'}`} style=${x.primary ? { background: mod.accent } : null} />`)}
+                className=${`px-3 py-2 shadow-sm ${x.primary ? 'text-white' : 'bg-white ring-2 ring-slate-200 text-slate-700'}`} style=${x.primary ? { background: ink(mod.accent) } : null} />`)}
               <${Btn} label=${t('reset')} onClick=${doReset} className="px-3 py-2 bg-slate-100 text-slate-600">↺ ${t('reset')}<//>
             </div>
           </section>
           <${SafetyNote} />
         </div>
-      </aside>
+      </main>
     </div>
   </div>`;
 }

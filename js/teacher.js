@@ -62,7 +62,7 @@ export function TeacherPage({ sub, arg, onBack }) {
   }).sort((a, b) => a.name.localeCompare(b.name, 'zh-HK')), [cls.students]);
 
   const back = html`<${Btn} label=${t('back')} onClick=${onBack} className="h-11 px-3 bg-white ring-2 ring-slate-200 text-slate-700"><span className="text-xl leading-none" aria-hidden="true">‹</span><span className="hidden sm:inline">${t('back')}</span><//>`;
-  if (!pass) return html`<div className="app-h flex flex-col"><${TopBar} title=${t('teacherTitle')} left=${back} /><main id="main" className="flex-1 overflow-y-auto px-4"><${Gate} onPass=${() => setPass(true)} /></main></div>`;
+  if (!pass) return html`<div className="app-h flex flex-col"><${TopBar} title=${t('teacherTitle')} left=${back} /><main id="main" tabIndex="-1" className="outline-none flex-1 overflow-y-auto px-4"><${Gate} onPass=${() => setPass(true)} /></main></div>`;
 
   function exportCsv() {
     const head = [t('csvName'), t('csvTime'), t('csvDone'), t('csvStars'), t('csvCh'), ...MODULES.map((m) => `${m.topics[0]} ${pick(m.title)}`)];
@@ -86,7 +86,7 @@ export function TeacherPage({ sub, arg, onBack }) {
 
   return html`<div className="app-h flex flex-col">
     <${TopBar} title=${t('teacherTitle')} left=${back} />
-    <main id="main" className="flex-1 overflow-y-auto">
+    <main id="main" tabIndex="-1" className="outline-none flex-1 overflow-y-auto">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-5 pb-28 space-y-5">
         ${imported ? html`<p role="status" className="rounded-2xl bg-emerald-50 ring-1 ring-emerald-300 p-3 font-bold text-emerald-800">✅ ${t('importOk', { n: imported.name })}</p>` : null}
         ${imported === false ? html`<p role="alert" className="rounded-2xl bg-rose-50 ring-1 ring-rose-300 p-3 font-bold text-rose-700">${t('importBad')}</p>` : null}

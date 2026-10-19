@@ -92,3 +92,9 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   .no-print { display: none !important; }
   @page { margin: 12mm; }
 }
+
+/* 對比度：白字底色用深一級（Tailwind 變數；html:root 特異度高過 Tailwind 嘅 :root） */
+html:root {
+  --color-emerald-500: #047857; --color-sky-500: #0369a1; --color-amber-500: #b45309;
+  --color-indigo-600: #4338ca; --color-slate-500: #475569; --color-slate-400: #5b6b80;
+}

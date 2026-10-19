@@ -125,6 +125,7 @@ export default {
       if (o.id === 'alkaline') { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.45, 20), K.stdMat('#111827', 0.4)); b.position.y = 0.225; g.add(b); const c = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.1, 20), K.stdMat('#ca8a04', 0.3, 0.7)); c.position.y = 0.4; g.add(c); }
       if (o.id === 'lithium') { const b = new THREE.Mesh(new K.RoundedBoxGeometry(0.3, 0.45, 0.05, 2, 0.02), K.stdMat('#334155', 0.4)); b.position.y = 0.225; g.add(b); }
       if (o.id === 'button') { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.035, 24), K.stdMat('#d1d5db', 0.25, 0.9)); b.position.y = 0.02; g.add(b); }
+      const hit = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.55, 12), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })); hit.position.y = 0.275; g.add(hit); // 細粒電池都撳得中
       const l = api.label(o, { border: '#94a3b8', h: 0.13 }); l.position.set(-2.3 + i * 0.75, T + 0.62, -1.15);
       api.tap(g, () => look(i), o, [l]);
       return g;

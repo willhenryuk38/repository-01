@@ -1,5 +1,6 @@
 /* 主頁：導師介紹、開放中嘅實驗、進度、完整課程地圖、自動導覽 */
-import { html, useApp, useState, useEffect, useRef, useCallback, joinSay, sleep, progress, useStore, starCount } from './lib.js';
+import { html, useApp, useState, useEffect, useRef, useCallback, joinSay, sleep, progress, settings, useStore, starCount, isChallengeOpen } from './lib.js';
+import { CHALLENGES } from './challenges.js';
 import { Speech } from './speech.js';
 import { Btn, Spk, Tutor, TopBar, SafetyNote, Stars } from './ui.js';
 import { MODULES } from './modules.js';
@@ -13,6 +14,19 @@ const CHIP = {
   done: 'bg-emerald-100 text-emerald-700', started: 'bg-sky-100 text-sky-700', new: 'bg-slate-100 text-slate-600',
   open: 'bg-sky-100 text-sky-700', next: 'bg-amber-100 text-amber-700', locked: 'bg-slate-100 text-slate-500',
 };
+
+// 升中挑戰掣：未解鎖 🔒（撳會講點樣解鎖）、已解鎖 ▶、完成咗 🎓
+function ChallengeBtn({ mod, rec, onOpen, small = false }) {
+  const { t, say } = useApp(); useStore(settings);
+  if (!CHALLENGES[mod.id]) return null;
+  const open = isChallengeOpen(mod.id);
+  const done = rec && rec.challenge && rec.challenge.done;
+  const icon = done ? '🎓' : open ? '▶' : '🔒';
+  const label = `${t('challenge')}${done ? '（' + t('challengeDone') + '）' : ''}`;
+  return html`<${Btn} label=${label} onClick=${() => (open ? onOpen(mod.id, 'challenge') : say('locked', t('challengeLocked')))}
+    className=${`${small ? '!min-h-9 px-3 text-sm' : 'w-full py-2'} ${open ? 'bg-indigo-600 text-white shadow' : 'bg-slate-100 text-slate-500 ring-2 ring-slate-200'}`}>
+    <span aria-hidden="true">${icon}</span> ${t('challenge')}<//>`;
+}
 
 function LessonCard({ mod, onOpen, rec, focus }) {
   const { t, pick, lang } = useApp();
@@ -34,6 +48,7 @@ function LessonCard({ mod, onOpen, rec, focus }) {
       <div className="flex items-center gap-2"><${Stars} rec=${rec} /><span className="text-xs text-slate-400 font-bold">${starCount(rec)} / 3</span></div>
       <${Btn} label=${st === 'done' ? t('replay') : st === 'started' ? t('continue') : t('start')} onClick=${() => onOpen(mod.id)}
         className="mt-auto w-full py-3 text-lg text-white shadow-md" style=${{ background: mod.accent }}>${st === 'done' ? t('replay') : st === 'started' ? t('continue') : t('start')} ›<//>
+      <${ChallengeBtn} mod=${mod} rec=${rec} onOpen=${onOpen} />
     </div>
   </article>`;
 }
@@ -73,6 +88,7 @@ function Roadmap({ prog, onOpen, focus }) {
                 ${s.next ? html`<p className="ml-11 mt-1 text-xs font-bold text-amber-700">${t('comingName')}${pick(s.next)}</p>` : null}
                 ${mods.length ? html`<div className="ml-11 mt-1.5 flex flex-wrap gap-1.5">
                   ${mods.map((m) => html`<${Btn} key=${m.id} label=${pick(m.title)} onClick=${() => onOpen(m.id)} className="!min-h-9 px-3 text-sm text-white" style=${{ background: m.accent }}>${pick(m.title)} ›<//>`)}
+                  ${mods.map((m) => html`<${ChallengeBtn} key=${'c' + m.id} mod=${m} rec=${prog[m.id]} onOpen=${onOpen} small=${true} />`)}
                 </div>` : null}
               </li>`;
             })}

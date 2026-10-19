@@ -17,7 +17,7 @@ export const Speech = (() => {
   const subs = new Set();
   const set = (p) => { state = { ...state, ...p }; subs.forEach((f) => f()); };
   const warned = new Set();
-  let chunks = [], idx = 0, token = 0, lang = 'zh-HK', cur = null, pending = null;
+  let chunks = [], idx = 0, token = 0, lang = 'zh-HK', cur = null, pending = null, rate = 0.92;
   const waiters = new Set();
   const isIdle = () => !state.playing && !state.paused && !pending;
   const flushIdle = () => { if (isIdle()) { const w = [...waiters]; waiters.clear(); w.forEach((f) => f()); } };
@@ -73,7 +73,7 @@ export const Speech = (() => {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang;
     const v = pick(lang); if (v) u.voice = v;
-    u.rate = 0.92; u.pitch = 1.05;
+    u.rate = rate; u.pitch = 1.05;
     u._start = performance.now();
     const end = (forceEst) => {
       if (u._done || my !== token) return;
@@ -127,6 +127,7 @@ export const Speech = (() => {
   }
   function waitIdle() { return new Promise((res) => { if (isIdle()) setTimeout(res, 0); else waiters.add(res); }); }
   function dismissMissing() { set({ missing: null }); }
-  return { say, pause, resume, stop, unlock, waitIdle, dismissMissing, isIdle,
+  function setRate(r) { rate = r; }
+  return { say, setRate, pause, resume, stop, unlock, waitIdle, dismissMissing, isIdle,
     subscribe: (f) => { subs.add(f); return () => subs.delete(f); }, get: () => state };
 })();

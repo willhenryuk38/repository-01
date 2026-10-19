@@ -1,5 +1,6 @@
 /* 共用介面元件 */
-import { html, useApp, useEffect, useRef, useSyncExternalStore, joinSay, fx } from './lib.js';
+import { html, useApp, useEffect, useRef, useSyncExternalStore, joinSay, fx, settings, useStore } from './lib.js';
+import { ChemText, chemPlain } from './chem.js';
 import { Speech } from './speech.js';
 
 export const useSpeech = () => useSyncExternalStore(Speech.subscribe, Speech.get);
@@ -24,9 +25,10 @@ export function Spk({ text, id, size = 'md' }) {
 }
 
 // 一般按鈕：點讀模式時讀出名，唔執行
-export function Btn({ label, onClick, className = '', children, disabled = false, style, ariaLabel }) {
+export function Btn({ label, onClick, className = '', children, disabled = false, style, ariaLabel, current }) {
   const { readMode, say } = useApp();
-  return html`<button type="button" aria-label=${ariaLabel || label} aria-disabled=${disabled ? 'true' : 'false'} style=${style}
+  label = chemPlain(label);
+  return html`<button type="button" aria-label=${chemPlain(ariaLabel) || label} aria-disabled=${disabled ? 'true' : 'false'} aria-current=${current ? 'step' : undefined} style=${style}
     className=${`rm-target inline-flex items-center justify-center gap-2 min-h-11 rounded-2xl font-bold transition active:scale-[.97] ${disabled ? 'opacity-45 cursor-not-allowed' : ''} ${className}`}
     onClick=${(e) => { if (readMode) { e.stopPropagation(); say('btn:' + label, label); return; } if (!disabled && onClick) onClick(e); }}>${children ?? label}</button>`;
 }
@@ -59,6 +61,7 @@ export const TAG_STYLE = {
   intro: 'bg-sky-100 text-sky-700', try: 'bg-emerald-100 text-emerald-700', observe: 'bg-indigo-100 text-indigo-700',
   feynman: 'bg-pink-100 text-pink-700', first: 'bg-violet-100 text-violet-700', life: 'bg-lime-100 text-lime-800',
   quiz: 'bg-amber-100 text-amber-700', event: 'bg-orange-100 text-orange-700',
+  term: 'bg-indigo-100 text-indigo-700', equation: 'bg-fuchsia-100 text-fuchsia-700', exam: 'bg-rose-100 text-rose-700',
 };
 
 // 小麗博士對白泡泡
@@ -70,7 +73,7 @@ export function Tutor({ tag, text, id, big = false, sayText }) {
     <div key=${id} className="pop-in relative flex-1 bg-white rounded-3xl rounded-tl-md p-3 sm:p-4 shadow-lg ring-1 ring-sky-100">
       ${tag ? html`<span className=${`inline-block mb-1.5 px-2.5 py-0.5 rounded-full text-xs font-black ${TAG_STYLE[tag] || ''}`}>${t('tag_' + tag)}</span>` : null}
       <div className="flex gap-2 items-start">
-        <p className=${`flex-1 leading-relaxed text-slate-800 ${big ? 'text-lg sm:text-xl' : 'text-[17px]'}`}>${text}</p>
+        <p className=${`flex-1 leading-relaxed text-slate-800 ${big ? 'text-lg sm:text-xl' : 'text-[17px]'}`}><${ChemText} text=${text} /></p>
         <${Spk} id=${id} text=${full} />
       </div>
     </div>
@@ -106,15 +109,62 @@ export function LangToggle() {
   </button>`;
 }
 
+export function SettingsToggle() {
+  const { t, openSettings, readMode, say } = useApp();
+  return html`<button type="button" aria-label=${t('settings')} title=${t('settings')}
+    onClick=${() => { if (readMode) { say('btn:settings', t('settings')); return; } openSettings(); }}
+    className="rm-target grid place-items-center w-11 h-11 rounded-full bg-white ring-2 ring-slate-200 shadow-sm text-lg active:scale-95"><span aria-hidden="true">⚙️</span></button>`;
+}
+
+// 設定：升中模式、朗讀化學式、字體大小、高對比、減少動畫、語速、暱稱
+export function SettingsSheet({ onClose }) {
+  const { t, lang } = useApp(); const st = useStore(settings);
+  useEffect(() => {
+    const k = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k);
+  }, []);
+  const Sw = ({ k, label }) => html`<label className="flex items-center gap-3 py-2 cursor-pointer">
+    <input type="checkbox" className="peer sr-only" checked=${!!st[k]} onChange=${(e) => settings.set({ [k]: e.target.checked })} />
+    <span aria-hidden="true" className=${`relative w-12 h-7 shrink-0 rounded-full transition peer-focus-visible:ring-4 peer-focus-visible:ring-sky-300 ${st[k] ? 'bg-emerald-500' : 'bg-slate-300'}`}>
+      <span className=${`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-all ${st[k] ? 'left-6' : 'left-1'}`}></span></span>
+    <span className="flex-1 font-bold text-slate-700">${label}</span>
+  </label>`;
+  const Seg = ({ k, label, opts }) => html`<fieldset className="py-2">
+    <legend className="font-bold text-slate-700 mb-1.5">${label}</legend>
+    <div className="flex gap-2">${opts.map(([v, l]) => html`<label key=${v} className=${`flex-1 text-center cursor-pointer rounded-xl py-2 font-bold ring-2 ${st[k] === v ? 'bg-sky-500 text-white ring-sky-600' : 'bg-white text-slate-600 ring-slate-200'}`}>
+      <input type="radio" name=${k} value=${v} className="sr-only" checked=${st[k] === v} onChange=${() => settings.set({ [k]: v })} />${l}</label>`)}</div>
+  </fieldset>`;
+  return html`<div className="fixed inset-0 z-[80] grid place-items-center bg-slate-900/40 backdrop-blur-sm p-3" onClick=${onClose}>
+    <div role="dialog" aria-modal="true" aria-labelledby="set-title" className="pop-in w-[min(94vw,520px)] max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-2xl p-5" onClick=${(e) => e.stopPropagation()}>
+      <div className="flex items-center gap-2 mb-2">
+        <h2 id="set-title" className="flex-1 text-xl font-black text-slate-800">⚙️ ${t('settingsTitle')}</h2>
+        <button type="button" autoFocus aria-label=${t('close')} onClick=${onClose} className="w-11 h-11 rounded-full bg-slate-100 font-black text-lg">✕</button>
+      </div>
+      <div className="divide-y divide-slate-100">
+        <${Sw} k="challengeAll" label=${'🎓 ' + t('setChallengeAll')} />
+        <${Sw} k="readFormula" label=${'🔤 ' + t('setReadFormula')} />
+        <${Seg} k="textSize" label=${t('setTextSize')} opts=${[['md', t('size_md')], ['lg', t('size_lg')], ['xl', t('size_xl')]]} />
+        <${Seg} k="rate" label=${t('setRate')} opts=${[['slow', t('rate_slow')], ['normal', t('rate_normal')], ['fast', t('rate_fast')]]} />
+        <${Sw} k="contrast" label=${t('setContrast')} />
+        <${Sw} k="reduceMotion" label=${t('setMotion')} />
+        <label className="block py-2"><span className="block font-bold text-slate-700 mb-1.5">${t('setNickname')}</span>
+          <input type="text" maxLength="16" value=${st.nickname || ''} placeholder=${t('nicknamePh')} lang=${lang === 'zh' ? 'zh-HK' : 'en-GB'}
+            onChange=${(e) => settings.set({ nickname: e.target.value.slice(0, 16) })}
+            className="w-full h-12 px-3 rounded-xl ring-2 ring-slate-200 focus:ring-sky-400 outline-none text-lg" /></label>
+      </div>
+    </div>
+  </div>`;
+}
+
 export function TopBar({ left, title, titleSpeak }) {
   return html`<header className="sticky top-0 z-30 flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/90 backdrop-blur border-b border-sky-100"
     style=${{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}>
     ${left}
     <div className="flex items-center gap-2 min-w-0 flex-1">
-      <h1 className="font-black text-base sm:text-xl text-slate-800 truncate">${title}</h1>
+      <h1 className="font-black text-base sm:text-xl text-slate-800 truncate"><${ChemText} text=${title} /></h1>
       <${Spk} text=${titleSpeak || title} size="sm" id=${'title:' + title} />
     </div>
-    <${AutoplayToggle} /><${ReadModeToggle} /><${LangToggle} />
+    <${AutoplayToggle} /><${ReadModeToggle} /><${LangToggle} /><${SettingsToggle} />
   </header>`;
 }
 
@@ -206,6 +256,7 @@ export function Fireworks() {
     }
     const off = fx.on(() => {
       const c = ref.current; if (!c) return;
+      if (document.documentElement.classList.contains('reduce-motion') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const dpr = window.devicePixelRatio || 1; c.width = window.innerWidth * dpr; c.height = window.innerHeight * dpr;
       const now = performance.now();
       for (let i = 0; i < 7; i++) bursts.push({ at: now + i * 260, x: 0.15 + Math.random() * 0.7, y: 0.12 + Math.random() * 0.35 });

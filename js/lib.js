@@ -22,21 +22,34 @@ export function createStore(key, initial) {
     subscribe(f) { subs.add(f); return () => subs.delete(f); },
   };
 }
-export const settings = createStore('chemlab.settings.v1', { autoplay: true, lang: 'zh', tipsSeen: false });
+export const settings = createStore('chemlab.settings.v1', {
+  autoplay: true, lang: 'zh', tipsSeen: false,
+  challengeAll: false, // 升中模式：唔使做完基礎層都可以玩升中挑戰
+  readFormula: true, // 朗讀化學式（只會喺升中挑戰出現）
+  textSize: 'md', contrast: false, reduceMotion: false, rate: 'normal', // 無障礙
+  nickname: '', task: null, // 暱稱（證書、交功課）；老師今日揀嘅實驗
+});
 export const progress = createStore('chemlab.progress.v1', {});
 export const useStore = (s) => useSyncExternalStore(s.subscribe, s.get);
 
-// 進度：{ [moduleId]: { status: 'started' | 'done', stars: { finish, self, quiz } } }
+// 進度：{ [moduleId]: { status: 'started' | 'done', stars: { finish, self, quiz }, at,
+//          challenge?: { done, first（一次答啱晒）, score（一次答啱幾多題）, at } } }
 export function markProgress(id, patch = {}) {
   progress.set((p) => {
     const cur = p[id] || { status: 'started', stars: {} };
     const next = { ...cur, ...patch, stars: { ...cur.stars, ...(patch.stars || {}) } };
     if (cur.status === 'done') next.status = 'done';
+    else if (next.status === 'done') next.at = Date.now();
     // 星星只會加，唔會減
     Object.keys(cur.stars || {}).forEach((k) => { if (cur.stars[k]) next.stars[k] = true; });
+    if (patch.challenge) {
+      const a = cur.challenge || {}, b = patch.challenge;
+      next.challenge = { done: !!(a.done || b.done), first: !!(a.first || b.first), score: Math.max(a.score || 0, b.score || 0), at: a.at || (b.done ? Date.now() : undefined) };
+    } else if (cur.challenge) next.challenge = cur.challenge;
     return { ...p, [id]: next };
   });
 }
+export const isChallengeOpen = (id, prog = progress.get()) => settings.get().challengeAll || (prog[id] && prog[id].status === 'done');
 export const starCount = (rec) => (rec && rec.stars ? ['finish', 'self', 'quiz'].filter((k) => rec.stars[k]).length : 0);
 
 /* ---------- 煙花訊號 ---------- */
@@ -98,6 +111,15 @@ export const UI = {
     star_finish: '完成實驗', star_self: '自己動手完成', star_quiz: '一次答啱',
     starsTitle: '星星收集', starsHow: '每個實驗有三粒星：完成實驗、全程自己動手（冇用示範）、思考挑戰一次答啱。',
     topicWord: '主題', openLesson: '打開', comingName: '預告：',
+    challenge: '升中挑戰', challengeTag: '🎓 升中挑戰', challengeLocked: '做完呢個實驗嘅基礎層，就可以解鎖升中挑戰。亦可以喺設定開「升中模式」。',
+    challengeDone: '已完成升中挑戰', challengeFinishText: '好叻呀！你完成咗升中挑戰，識得用正式名詞同化學方程式講解呢個實驗。升中都唔使驚！',
+    tag_term: '正式名詞', tag_equation: '化學方程式', tag_exam: '考試貼士',
+    wordEq: '文字方程式', symEq: '化學方程式', nextQ: '下一題', qOf: '第 {i} / {n} 題',
+    settings: '設定', settingsTitle: '設定', setChallengeAll: '升中模式：全部升中挑戰直接開放',
+    setReadFormula: '朗讀化學式（例如「H 二 O」）', setTextSize: '字體大小', size_md: '標準', size_lg: '大', size_xl: '特大',
+    setContrast: '高對比', setMotion: '減少動畫（冇煙花、冇彈跳）', setRate: '語速', rate_slow: '慢', rate_normal: '標準', rate_fast: '快',
+    setNickname: '你嘅暱稱（用喺證書同交功課，唔好寫全名）', nicknamePh: '例如：小明',
+    skipToMain: '跳到主要內容', stageAlt: '3D 實驗室畫面：{t}。可以用下面嘅「示範俾我睇」同工具掣完成每一步。',
   },
   en: {
     appTitle: "Dr. Lily's Chemistry Lab",
@@ -144,6 +166,15 @@ export const UI = {
     star_finish: 'Finished', star_self: 'Did it yourself', star_quiz: 'Right first time',
     starsTitle: 'Star collection', starsHow: 'Each experiment has three stars: finish it, do every step yourself (no "Show me"), and get the thinking challenge right first time.',
     topicWord: 'Topic', openLesson: 'Open', comingName: 'Coming: ',
+    challenge: 'Secondary Challenge', challengeTag: '🎓 Secondary Challenge', challengeLocked: 'Finish the basic experiment first to unlock its Secondary Challenge, or switch on Secondary mode in Settings.',
+    challengeDone: 'Secondary Challenge done', challengeFinishText: "Brilliant! You finished the Secondary Challenge and can explain this experiment with proper terms and chemical equations. You're ready for secondary school!",
+    tag_term: 'Key terms', tag_equation: 'Chemical equations', tag_exam: 'Exam tip',
+    wordEq: 'Word equation', symEq: 'Symbol equation', nextQ: 'Next question', qOf: 'Question {i} of {n}',
+    settings: 'Settings', settingsTitle: 'Settings', setChallengeAll: 'Secondary mode: open every Secondary Challenge',
+    setReadFormula: 'Read chemical formulae aloud (e.g. "H two O")', setTextSize: 'Text size', size_md: 'Normal', size_lg: 'Large', size_xl: 'Extra large',
+    setContrast: 'High contrast', setMotion: 'Reduce motion (no fireworks or bouncing)', setRate: 'Speaking speed', rate_slow: 'Slow', rate_normal: 'Normal', rate_fast: 'Fast',
+    setNickname: 'Your nickname (for certificates and sending work; not your full name)', nicknamePh: 'e.g. Sam',
+    skipToMain: 'Skip to main content', stageAlt: '3D lab: {t}. You can finish every step with "Show me" and the tool buttons below.',
   },
 };
 export const makeT = (lang) => (k, vars) => {

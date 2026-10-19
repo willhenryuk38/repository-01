@@ -59,3 +59,36 @@ input[type=range].day-slider::-moz-range-thumb { width: 26px; height: 26px; bord
 
 #boot { position: fixed; inset: 0; display: grid; place-items: center; text-align: center; font-weight: 700; color: #0369a1; }
 #boot .dot { width: 14px; height: 14px; border-radius: 50%; background: #38bdf8; display: inline-block; margin: 0 4px; animation: eq 1s infinite; }
+
+/* 化學式：下標同上標 */
+.chem sub, .chem sup { font-size: .72em; line-height: 0; }
+.chem sub { vertical-align: -.25em; } .chem sup { vertical-align: .38em; }
+.eq-sym { font-family: "Noto Sans TC", system-ui, sans-serif; letter-spacing: .01em; }
+
+/* 無障礙：字體大小（Tailwind 用 rem，所以改根字體就成頁跟住放大） */
+html.ts-lg { font-size: 112.5%; }
+html.ts-xl { font-size: 125%; }
+/* 高對比：淺色字變深、框線加粗 */
+html.hc body { background: #fff; color: #000; }
+html.hc [class*="text-slate-4"], html.hc [class*="text-slate-5"], html.hc [class*="text-slate-6"] { color: #111827 !important; }
+html.hc [class*="ring-slate-1"], html.hc [class*="ring-slate-2"] { --tw-ring-color: #334155 !important; }
+html.hc .opacity-60, html.hc .opacity-70 { opacity: 1 !important; }
+/* 減少動畫：設定開咗，或者部機開咗「減少動態效果」 */
+html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+/* 鍵盤操作：清楚嘅 focus 框 */
+:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+.skip-link { position: fixed; left: 8px; top: -60px; z-index: 100; padding: 10px 14px; border-radius: 12px; background: #1e293b; color: #fff; font-weight: 700; }
+.skip-link:focus { top: 8px; }
+
+/* 列印（證書、老師報告）：只印 .print-area */
+@media print {
+  body { background: #fff; }
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+  .no-print { display: none !important; }
+  @page { margin: 12mm; }
+}

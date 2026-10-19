@@ -1,10 +1,12 @@
 /* 程式入口：設定、開始畫面、路由 */
-import { html, ReactDOM, useState, useEffect, useMemo, Ctx, settings, useStore, makeT, VOICE_LANG } from './lib.js';
+import { html, ReactDOM, useState, useEffect, useMemo, Ctx, settings, progress, useStore, makeT, VOICE_LANG, isChallengeOpen } from './lib.js';
 import { Speech } from './speech.js';
-import { NowPlaying, VoiceToast, Fireworks, Lily } from './ui.js';
+import { NowPlaying, VoiceToast, Fireworks, Lily, SettingsSheet } from './ui.js';
+import { chemSpeak } from './chem.js';
 import { Home } from './home.js';
 import { LessonView } from './lesson.js';
 import { MODULES } from './modules.js';
+import { CHALLENGES } from './challenges.js';
 
 function StartOverlay({ onStart, t }) {
   return html`<div className="fixed inset-0 z-[70] grid place-items-center bg-sky-900/40 backdrop-blur-sm p-4" onClick=${() => onStart(true)}>
@@ -18,25 +20,45 @@ function StartOverlay({ onStart, t }) {
   </div>`;
 }
 
-// 網址路由：每個實驗都有自己嘅網址，例如 …/#/lemon（可以直接分享；iPad「返回」會返主頁）
-const idFromHash = () => { const id = decodeURIComponent(location.hash.replace(/^#\/?/, '')); return MODULES.some((m) => m.id === id) ? id : null; };
+// 網址路由（可以直接分享；iPad「返回」會返主頁）：
+//   #/lemon 實驗、#/lemon/challenge 升中挑戰、#/badges 成就、#/share 交功課、
+//   #/teacher 老師專區、#/teacher/import/<碼> 加學生、#/task/<碼> 今日任務、#/cert/<種類> 證書
+export function parseRoute() {
+  const h = decodeURIComponent(location.hash.replace(/^#\/?/, ''));
+  const [a, b, ...rest] = h.split('/');
+  if (MODULES.some((m) => m.id === a)) return { view: 'lesson', id: a, mode: b === 'challenge' ? 'challenge' : 'basic' };
+  if (['badges', 'share', 'teacher', 'task', 'cert'].includes(a)) return { view: a, sub: b || '', arg: rest.join('/') };
+  return { view: 'home' };
+}
+const RATE = { slow: 0.75, normal: 0.92, fast: 1.1 };
 
 function App() {
   const st = useStore(settings);
   const lang = st.lang === 'en' ? 'en' : 'zh';
   const [readMode, setReadMode] = useState(false);
-  const [lessonId, setLessonId] = useState(idFromHash);
+  const [route, setRoute] = useState(parseRoute);
   const [started, setStarted] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const prog = useStore(progress);
   const [tourSignal, setTourSignal] = useState(0);
 
   const ctx = useMemo(() => {
     const t = makeT(lang);
     const pick = (o) => (o ? (o[lang] ?? o.zh) : '');
-    const say = (id, text, opts) => Speech.say(id, text, VOICE_LANG[lang], opts);
+    const say = (id, text, opts) => Speech.say(id, chemSpeak(text, lang, settings.get().readFormula), VOICE_LANG[lang], opts);
     const setLang = (l) => { Speech.stop(); settings.set({ lang: l }); };
     const setAutoplay = (v) => settings.set({ autoplay: v });
-    return { lang, setLang, readMode, setReadMode, t, pick, say, autoplay: st.autoplay, setAutoplay };
+    const go = (path) => { Speech.stop(); history.pushState({ fromHome: true }, '', '#/' + path); setRoute(parseRoute()); };
+    return { lang, setLang, readMode, setReadMode, t, pick, say, autoplay: st.autoplay, setAutoplay, go, openSettings: () => setShowSettings(true) };
   }, [lang, readMode, st.autoplay]);
+
+  // 無障礙設定：字體大小、高對比、減少動畫、語速
+  useEffect(() => {
+    const c = document.documentElement.classList;
+    c.toggle('ts-lg', st.textSize === 'lg'); c.toggle('ts-xl', st.textSize === 'xl');
+    c.toggle('hc', !!st.contrast); c.toggle('reduce-motion', !!st.reduceMotion);
+    Speech.setRate(RATE[st.rate] || RATE.normal);
+  }, [st.textSize, st.contrast, st.reduceMotion, st.rate]);
 
   useEffect(() => {
     document.documentElement.lang = lang === 'zh' ? 'zh-HK' : 'en-GB';
@@ -51,23 +73,26 @@ function App() {
   };
   // 瀏覽器「上一頁」或者手動改網址
   useEffect(() => {
-    const sync = () => { Speech.stop(); setLessonId(idFromHash()); };
+    const sync = () => { Speech.stop(); setRoute(parseRoute()); };
     window.addEventListener('popstate', sync); window.addEventListener('hashchange', sync);
     return () => { window.removeEventListener('popstate', sync); window.removeEventListener('hashchange', sync); };
   }, []);
-  const open = (id) => { Speech.stop(); history.pushState({ fromHome: true }, '', '#/' + id); setLessonId(id); };
+  const open = (id, mode) => ctx.go(id + (mode === 'challenge' ? '/challenge' : ''));
   const back = () => {
     // 由主頁入嚟就退返一頁；直接用網址打開嘅就換走個網址
     if (history.state && history.state.fromHome) history.back();
-    else { Speech.stop(); history.replaceState(null, '', location.pathname + location.search); setLessonId(null); }
+    else { Speech.stop(); history.replaceState(null, '', location.pathname + location.search); setRoute({ view: 'home' }); }
   };
 
-  const mod = MODULES.find((m) => m.id === lessonId);
+  const mod = route.view === 'lesson' ? MODULES.find((m) => m.id === route.id) : null;
+  // 未解鎖嘅升中挑戰：先玩基礎層
+  const mode = mod && route.mode === 'challenge' && CHALLENGES[mod.id] && isChallengeOpen(mod.id, prog) ? 'challenge' : 'basic';
   return html`<${Ctx.Provider} value=${ctx}>
     <div className=${readMode ? 'readmode-on' : ''}>
       ${mod
-        ? html`<${LessonView} key=${mod.id} mod=${mod} onBack=${back} />`
+        ? html`<${LessonView} key=${mod.id + mode} mod=${mod} mode=${mode} onBack=${back} />`
         : html`<${Home} onOpen=${open} tourSignal=${tourSignal} />`}
+      ${showSettings ? html`<${SettingsSheet} onClose=${() => setShowSettings(false)} />` : null}
       <${NowPlaying} />
       <${VoiceToast} />
       <${Fireworks} />

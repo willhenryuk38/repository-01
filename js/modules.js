@@ -3,6 +3,9 @@ import airoxygen from '../modules/airoxygen.js';
 import salt from '../modules/salt.js';
 import limestone from '../modules/limestone.js';
 import extract from '../modules/extract.js';
+import atoms from '../modules/atoms.js';
+import periodic from '../modules/periodic.js';
+import bonding from '../modules/bonding.js';
 import metalrace from '../modules/metalrace.js';
 import rust from '../modules/rust.js';
 import acidprops from '../modules/acidprops.js';
@@ -21,4 +24,4 @@ import slime from '../modules/slime.js';
 import soap from '../modules/soap.js';
 import flametest from '../modules/flametest.js';
 
-export const MODULES = [airoxygen, salt, limestone, extract, metalrace, rust, acidprops, alkali, indicators, neutral, lemon, displace, plating, bleach, oilfrac, bromine, acidrain, yeast, slime, soap, flametest];
+export const MODULES = [airoxygen, salt, limestone, atoms, periodic, bonding, extract, metalrace, rust, acidprops, alkali, indicators, neutral, lemon, displace, plating, bleach, oilfrac, bromine, acidrain, yeast, slime, soap, flametest];

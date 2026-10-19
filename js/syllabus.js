@@ -14,10 +14,10 @@ export const SYLLABUS = [
       items: { zh: ['岩石和寶石', '粉筆、石灰石和大理石', '鈣鹽', '碳酸鈣的侵蝕'], en: ['Rocks and gemstones', 'Chalk, limestone and marble', 'Calcium salts', 'Erosion of calcium carbonate'] } },
   ] },
   { n: 2, color: '#8b5cf6', icon: '⚛️', zh: '微觀世界', en: 'The microscopic world', subs: [
-    { code: '2.1', zh: '原子結構', en: 'Atomic structure',
+    { code: '2.1', zh: '原子結構', en: 'Atomic structure', modules: ['atoms'],
       items: { zh: ['相對原子質量和相對同位素質量', '首 20 個元素的電子排佈'], en: ['Relative atomic mass and relative isotopic mass', 'Electronic arrangement of the first 20 elements'] } },
-    { code: '2.2', zh: '周期表', en: 'The Periodic Table', items: { zh: ['元素的排列方法'], en: ['How the elements are arranged'] } },
-    { code: '2.3', zh: '離子鍵和共價鍵', en: 'Ionic and covalent bonding',
+    { code: '2.2', zh: '周期表', en: 'The Periodic Table', modules: ['periodic'], items: { zh: ['元素的排列方法'], en: ['How the elements are arranged'] } },
+    { code: '2.3', zh: '離子鍵和共價鍵', en: 'Ionic and covalent bonding', modules: ['bonding'],
       items: { zh: ['離子的顏色', '常見離子的電荷和名稱', '離子結構', '共價結構', '分子結構'], en: ['Colours of ions', 'Charges and names of common ions', 'Ionic structure', 'Covalent structure', 'Molecular structure'] } },
   ] },
   { n: 3, color: '#ea580c', icon: '🔩', zh: '金屬', en: 'Metals', subs: [

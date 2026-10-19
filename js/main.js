@@ -6,6 +6,8 @@ import { chemSpeak } from './chem.js';
 import { Home } from './home.js';
 import { LessonView } from './lesson.js';
 import { BadgesPage, CertPage, BadgeToast } from './badges.js';
+import { SharePage } from './share.js';
+import { TeacherPage } from './teacher.js';
 import { MODULES } from './modules.js';
 import { CHALLENGES } from './challenges.js';
 
@@ -32,12 +34,20 @@ export function parseRoute() {
   return { view: 'home' };
 }
 const RATE = { slow: 0.75, normal: 0.92, fast: 1.1 };
+// 老師嘅今日任務連結：#/task/<id,id,…>[/ch] → 記低任務（ch = 同時開放升中挑戰），再返主頁
+function takeTask(r) {
+  if (r.view !== 'task') return r;
+  const ids = r.sub.split(',').filter((id) => MODULES.some((m) => m.id === id));
+  if (ids.length) settings.set({ task: { ids, at: Date.now() }, ...(r.arg === 'ch' ? { challengeAll: true } : {}) });
+  history.replaceState(null, '', location.pathname + location.search);
+  return { view: 'home' };
+}
 
 function App() {
   const st = useStore(settings);
   const lang = st.lang === 'en' ? 'en' : 'zh';
   const [readMode, setReadMode] = useState(false);
-  const [route, setRoute] = useState(parseRoute);
+  const [route, setRoute] = useState(() => takeTask(parseRoute()));
   const [started, setStarted] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const prog = useStore(progress);
@@ -74,7 +84,7 @@ function App() {
   };
   // 瀏覽器「上一頁」或者手動改網址
   useEffect(() => {
-    const sync = () => { Speech.stop(); setRoute(parseRoute()); };
+    const sync = () => { Speech.stop(); setRoute(takeTask(parseRoute())); };
     window.addEventListener('popstate', sync); window.addEventListener('hashchange', sync);
     return () => { window.removeEventListener('popstate', sync); window.removeEventListener('hashchange', sync); };
   }, []);
@@ -93,6 +103,8 @@ function App() {
       ${mod ? html`<${LessonView} key=${mod.id + mode} mod=${mod} mode=${mode} onBack=${back} />`
         : route.view === 'badges' ? html`<${BadgesPage} onBack=${back} />`
         : route.view === 'cert' ? html`<${CertPage} key=${route.sub} kind=${route.sub} onBack=${back} />`
+        : route.view === 'share' ? html`<${SharePage} onBack=${back} />`
+        : route.view === 'teacher' ? html`<${TeacherPage} sub=${route.sub} arg=${route.arg} onBack=${back} />`
         : html`<${Home} onOpen=${open} tourSignal=${tourSignal} />`}
       <${BadgeToast} />
       ${showSettings ? html`<${SettingsSheet} onClose=${() => setShowSettings(false)} />` : null}

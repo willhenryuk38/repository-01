@@ -101,7 +101,8 @@ function Roadmap({ prog, onOpen, focus }) {
 
 export function Home({ onOpen, tourSignal }) {
   const { t, pick, lang, say, autoplay, go } = useApp();
-  const prog = useStore(progress);
+  const prog = useStore(progress); const st = useStore(settings);
+  const task = st.task && st.task.ids ? st.task.ids.map((id) => MOD_BY_ID[id]).filter(Boolean) : null;
   const [focus, setFocus] = useState(null);
   const tourTok = useRef(0);
   const doneN = MODULES.filter((m) => statusOf(prog[m.id]) === 'done').length;
@@ -151,6 +152,15 @@ export function Home({ onOpen, tourSignal }) {
           </div>
         </div>
 
+        ${task ? html`<section className="rounded-3xl bg-amber-50 ring-2 ring-amber-300 p-4 space-y-2">
+          <div className="flex items-start gap-2"><h2 className="flex-1 font-black text-amber-900">${t('taskBanner')}</h2>
+            <${Spk} size="sm" text=${joinSay(lang, [t('taskBanner'), ...task.map((m) => pick(m.title))])} id="task-banner" /></div>
+          <div className="flex flex-wrap gap-2">
+            ${task.map((m) => html`<${Btn} key=${m.id} label=${pick(m.title)} onClick=${() => onOpen(m.id)} className="px-3 text-white shadow" style=${{ background: m.accent }}>${statusOf(prog[m.id]) === 'done' ? '✅ ' : ''}${pick(m.title)} ›<//>`)}
+            <${Btn} label=${t('taskClear')} onClick=${() => settings.set({ task: null })} className="px-3 bg-white ring-2 ring-amber-200 text-amber-800">${t('taskClear')}<//>
+          </div>
+        </section>` : null}
+
         <section data-tour="progress" className=${`rounded-3xl bg-white shadow ring-1 ring-slate-100 p-4 space-y-3 ${focus === 'progress' ? 'tour-focus' : ''}`}>
           <div className="flex items-center gap-2">
             <h2 className="flex-1 font-black text-slate-800 text-lg">🏆 ${progText}</h2>
@@ -162,6 +172,8 @@ export function Home({ onOpen, tourSignal }) {
           <p className="text-xs text-slate-400">⭐ ${t('starsHow')}</p>
           <div className="flex flex-wrap gap-2 pt-1">
             <${Btn} label=${t('badgesBtn')} onClick=${() => go('badges')} className="px-4 py-2 bg-amber-400 text-slate-900 shadow">🏅 ${t('badgesBtn')}<//>
+            <${Btn} label=${t('shareBtn')} onClick=${() => go('share')} className="px-4 py-2 bg-sky-500 text-white shadow">📮 ${t('shareBtn')}<//>
+            <${Btn} label=${t('teacherBtn')} onClick=${() => go('teacher')} className="px-4 py-2 bg-white ring-2 ring-slate-200 text-slate-700">🧑‍🏫 ${t('teacherBtn')}<//>
           </div>
         </section>
 

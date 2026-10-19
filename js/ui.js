@@ -33,8 +33,8 @@ export function Btn({ label, onClick, className = '', children, disabled = false
     onClick=${(e) => { if (readMode) { e.stopPropagation(); say('btn:' + label, label); return; } if (!disabled && onClick) onClick(e); }}>${children ?? label}</button>`;
 }
 
-export function Lily({ className = '', talking = false }) {
-  return html`<svg viewBox="0 0 120 140" className=${className} aria-hidden="true">
+export function Lily({ className = '', talking = false, ...rest }) {
+  return html`<svg viewBox="0 0 120 140" className=${className} aria-hidden="true" ...${rest}>
     <path d="M22 62 C18 30 40 14 60 14 C82 14 102 30 98 62 L100 96 C92 101 84 99 80 93 L40 93 C36 99 27 101 20 96 Z" fill="#3b2a24" />
     <path d="M16 140 C16 112 33 100 60 100 C87 100 104 112 104 140 Z" fill="#ffffff" stroke="#cbd5e1" strokeWidth="2" />
     <path d="M60 101 L47 140 M60 101 L73 140" stroke="#cbd5e1" strokeWidth="2" />

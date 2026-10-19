@@ -5,6 +5,7 @@ import { NowPlaying, VoiceToast, Fireworks, Lily, SettingsSheet } from './ui.js'
 import { chemSpeak } from './chem.js';
 import { Home } from './home.js';
 import { LessonView } from './lesson.js';
+import { BadgesPage, CertPage, BadgeToast } from './badges.js';
 import { MODULES } from './modules.js';
 import { CHALLENGES } from './challenges.js';
 
@@ -89,9 +90,11 @@ function App() {
   const mode = mod && route.mode === 'challenge' && CHALLENGES[mod.id] && isChallengeOpen(mod.id, prog) ? 'challenge' : 'basic';
   return html`<${Ctx.Provider} value=${ctx}>
     <div className=${readMode ? 'readmode-on' : ''}>
-      ${mod
-        ? html`<${LessonView} key=${mod.id + mode} mod=${mod} mode=${mode} onBack=${back} />`
+      ${mod ? html`<${LessonView} key=${mod.id + mode} mod=${mod} mode=${mode} onBack=${back} />`
+        : route.view === 'badges' ? html`<${BadgesPage} onBack=${back} />`
+        : route.view === 'cert' ? html`<${CertPage} key=${route.sub} kind=${route.sub} onBack=${back} />`
         : html`<${Home} onOpen=${open} tourSignal=${tourSignal} />`}
+      <${BadgeToast} />
       ${showSettings ? html`<${SettingsSheet} onClose=${() => setShowSettings(false)} />` : null}
       <${NowPlaying} />
       <${VoiceToast} />

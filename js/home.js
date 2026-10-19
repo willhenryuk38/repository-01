@@ -100,7 +100,7 @@ function Roadmap({ prog, onOpen, focus }) {
 }
 
 export function Home({ onOpen, tourSignal }) {
-  const { t, pick, lang, say, autoplay } = useApp();
+  const { t, pick, lang, say, autoplay, go } = useApp();
   const prog = useStore(progress);
   const [focus, setFocus] = useState(null);
   const tourTok = useRef(0);
@@ -160,6 +160,9 @@ export function Home({ onOpen, tourSignal }) {
           <p className="text-sm text-slate-500 font-bold">🗺️ ${unlockText}</p>
           <div className="h-2.5 rounded-full bg-slate-100 overflow-hidden"><div className="h-full rounded-full bg-amber-400" style=${{ width: `${(openSubs / ALL_SUBS.length) * 100}%` }}></div></div>
           <p className="text-xs text-slate-400">⭐ ${t('starsHow')}</p>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <${Btn} label=${t('badgesBtn')} onClick=${() => go('badges')} className="px-4 py-2 bg-amber-400 text-slate-900 shadow">🏅 ${t('badgesBtn')}<//>
+          </div>
         </section>
 
         <section className="space-y-3">

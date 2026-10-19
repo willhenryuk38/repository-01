@@ -48,14 +48,14 @@ export const SYLLABUS = [
     { code: '6.3', zh: '漂白劑', en: 'Bleach', modules: ['bleach'], items: { zh: ['漂白溶液的製造', '漂白劑的作用'], en: ['Manufacture of bleaching solution', 'Action of bleach'] } },
   ] },
   { n: 7, color: '#64748b', icon: '🛢️', zh: '化石燃料和碳化合物', en: 'Fossil fuels and carbon compounds', subs: [
-    { code: '7.1', zh: '化石燃料', en: 'Fossil fuels', next: { zh: '石油分層', en: 'Sorting Crude Oil' }, items: { zh: ['石油不同餾分的用途', '原油餾分的性質', '油餾分的裂解'], en: ['Uses of different fractions of petroleum', 'Properties of crude oil fractions', 'Cracking of oil fractions'] } },
+    { code: '7.1', zh: '化石燃料', en: 'Fossil fuels', modules: ['oilfrac'], items: { zh: ['石油不同餾分的用途', '原油餾分的性質', '油餾分的裂解'], en: ['Uses of different fractions of petroleum', 'Properties of crude oil fractions', 'Cracking of oil fractions'] } },
     { code: '7.2', zh: '同系列、結構式和命名', en: 'Homologous series, structural formulae and naming', items: { zh: ['碳化合物的同系列、結構式和命名'], en: ['Homologous series, structural formulae and naming of carbon compounds'] } },
-    { code: '7.3', zh: '烷和烯', en: 'Alkanes and alkenes', next: { zh: '溴水褪色', en: 'The Bromine Water Test' }, items: { zh: ['烷和烯的化學性質'], en: ['Chemical properties of alkanes and alkenes'] } },
+    { code: '7.3', zh: '烷和烯', en: 'Alkanes and alkenes', modules: ['bromine'], items: { zh: ['烷和烯的化學性質'], en: ['Chemical properties of alkanes and alkenes'] } },
     { code: '7.4', zh: '使用化石燃料的後果', en: 'Consequences of using fossil fuels', modules: ['acidrain'], items: { zh: ['酸雨的形成', '酸雨對建築材料的影響', '催化轉換器'], en: ['Formation of acid rain', 'Effects of acid rain on building materials', 'Catalytic converters'] } },
     { code: '7.5', zh: '醇', en: 'Alcohols', modules: ['yeast'], items: { zh: ['烷醇的化學性質', '發酵', '醋的製造'], en: ['Chemical properties of alkanols', 'Fermentation', 'Production of vinegar'] } },
   ] },
   { n: 8, color: '#ec4899', icon: '🧴', zh: '塑膠和清潔劑', en: 'Plastics and detergents', subs: [
-    { code: '8.1', zh: '塑膠', en: 'Plastics', next: { zh: '史萊姆', en: 'Slime Science' }, items: { zh: ['加成聚合', '縮合聚合'], en: ['Addition polymerisation', 'Condensation polymerisation'] } },
+    { code: '8.1', zh: '塑膠', en: 'Plastics', modules: ['slime'], items: { zh: ['加成聚合', '縮合聚合'], en: ['Addition polymerisation', 'Condensation polymerisation'] } },
     { code: '8.2', zh: '清潔劑', en: 'Detergents', modules: ['soap'], items: { zh: ['皂化作用', '肥皂的問題和解決方法'], en: ['Saponification', 'Soap problems and solutions'] } },
   ] },
   { n: 9, color: '#22c55e', icon: '🔍', zh: '檢測和分析', en: 'Detection and analysis', subs: [

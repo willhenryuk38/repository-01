@@ -225,7 +225,7 @@ export function LessonView({ mod, onBack, mode = 'basic' }) {
       className=${`px-4 text-white shadow ${cur.action ? 'pulse-go' : ''}`} style=${{ background: ink(cur.action ? '#10b981' : mod.accent) }}><span className="hidden sm:inline">${t('next')}</span> ›<//>`;
 
   return html`<div className="app-h flex flex-col">
-    <${TopBar} title=${ch ? `${t('challengeTag')}：${pick(mod.title)}` : pick(mod.title)}
+    <${TopBar} title=${ch ? `${t('challengeTag')}${lang === 'zh' ? '：' : ': '}${pick(mod.title)}` : pick(mod.title)}
       left=${html`<${Btn} label=${t('back')} onClick=${onBack} className="h-11 px-3 bg-white ring-2 ring-slate-200 text-slate-700"><span className="text-xl leading-none" aria-hidden="true">‹</span><span className="hidden sm:inline">${t('back')}</span><//>`} />
     <div className="lesson-main">
       <div className="stage-wrap" role="region" aria-label=${t('stageAlt', { t: pick(mod.title) })} style=${{ background: mod.bg }}>

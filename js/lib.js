@@ -22,22 +22,46 @@ export function createStore(key, initial) {
     subscribe(f) { subs.add(f); return () => subs.delete(f); },
   };
 }
-export const settings = createStore('chemlab.settings.v1', { autoplay: true, lang: 'zh', tipsSeen: false });
+export const settings = createStore('chemlab.settings.v1', {
+  autoplay: true, lang: 'zh', tipsSeen: false,
+  challengeAll: false, // 升中模式：唔使做完基礎層都可以玩升中挑戰
+  readFormula: true, // 朗讀化學式（只會喺升中挑戰出現）
+  textSize: 'md', contrast: false, reduceMotion: false, rate: 'normal', // 無障礙
+  nickname: '', task: null, // 暱稱（證書、交功課）；老師今日揀嘅實驗
+});
 export const progress = createStore('chemlab.progress.v1', {});
 export const useStore = (s) => useSyncExternalStore(s.subscribe, s.get);
 
-// 進度：{ [moduleId]: { status: 'started' | 'done', stars: { finish, self, quiz } } }
+// 進度：{ [moduleId]: { status: 'started' | 'done', stars: { finish, self, quiz }, at,
+//          challenge?: { done, first（一次答啱晒）, score（一次答啱幾多題）, at } } }
 export function markProgress(id, patch = {}) {
   progress.set((p) => {
     const cur = p[id] || { status: 'started', stars: {} };
     const next = { ...cur, ...patch, stars: { ...cur.stars, ...(patch.stars || {}) } };
     if (cur.status === 'done') next.status = 'done';
+    else if (next.status === 'done') next.at = Date.now();
     // 星星只會加，唔會減
     Object.keys(cur.stars || {}).forEach((k) => { if (cur.stars[k]) next.stars[k] = true; });
+    if (patch.challenge) {
+      const a = cur.challenge || {}, b = patch.challenge;
+      next.challenge = { done: !!(a.done || b.done), first: !!(a.first || b.first), score: Math.max(a.score || 0, b.score || 0), at: a.at || (b.done ? Date.now() : undefined) };
+    } else if (cur.challenge) next.challenge = cur.challenge;
     return { ...p, [id]: next };
   });
 }
+export const isChallengeOpen = (id, prog = progress.get()) => settings.get().challengeAll || (prog[id] && prog[id].status === 'done');
 export const starCount = (rec) => (rec && rec.stars ? ['finish', 'self', 'quiz'].filter((k) => rec.stars[k]).length : 0);
+
+/* ---------- 白字底色：將實驗主題色加深，直至同白字對比度 ≥ 4.5（WCAG AA） ---------- */
+const lum = (h) => { const v = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+const inkCache = {};
+export function ink(hex) {
+  if (!/^#[0-9a-f]{6}$/i.test(hex || '')) return hex;
+  if (inkCache[hex]) return inkCache[hex];
+  let rgb = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)), out = hex;
+  for (let k = 0; k < 20 && 1.05 / (lum(out) + 0.05) < 4.5; k++) { rgb = rgb.map((c) => Math.round(c * 0.9)); out = '#' + rgb.map((c) => c.toString(16).padStart(2, '0')).join(''); }
+  return (inkCache[hex] = out);
+}
 
 /* ---------- 煙花訊號 ---------- */
 const fxSubs = new Set();
@@ -98,6 +122,33 @@ export const UI = {
     star_finish: '完成實驗', star_self: '自己動手完成', star_quiz: '一次答啱',
     starsTitle: '星星收集', starsHow: '每個實驗有三粒星：完成實驗、全程自己動手（冇用示範）、思考挑戰一次答啱。',
     topicWord: '主題', openLesson: '打開', comingName: '預告：',
+    challenge: '升中挑戰', challengeTag: '🎓 升中挑戰', challengeLocked: '做完呢個實驗嘅基礎層，就可以解鎖升中挑戰。亦可以喺設定開「升中模式」。',
+    challengeDone: '已完成升中挑戰', challengeFinishText: '好叻呀！你完成咗升中挑戰，識得用正式名詞同化學方程式講解呢個實驗。升中都唔使驚！',
+    tag_term: '正式名詞', tag_equation: '化學方程式', tag_exam: '考試貼士',
+    wordEq: '文字方程式', symEq: '化學方程式', nextQ: '下一題', qOf: '第 {i} / {n} 題',
+    settings: '設定', settingsTitle: '設定', setChallengeAll: '升中模式：全部升中挑戰直接開放',
+    setReadFormula: '朗讀化學式（例如「H 二 O」）', setTextSize: '字體大小', size_md: '標準', size_lg: '大', size_xl: '特大',
+    setContrast: '高對比', setMotion: '減少動畫（冇煙花、冇彈跳）', setRate: '語速', rate_slow: '慢', rate_normal: '標準', rate_fast: '快',
+    setNickname: '你嘅暱稱（用喺證書同交功課，唔好寫全名）', nicknamePh: '例如：小明',
+    newBadge: '你得到新徽章！', badgesBtn: '成就同證書', badgesTitle: '成就同證書', badgesIntro: '你已經得到 {g} / {n} 個徽章。完成實驗同升中挑戰，就可以收集更多！',
+    badgeGot: '已得到', badgeProgress: '進度 {a} / {n}',
+    certsTitle: '證書', certsHow: '完成一個主題嘅全部實驗，就有一張證書；做晒全部實驗有畢業證書；做晒全部升中挑戰有升中挑戰證書。可以列印或者下載圖片。',
+    certLocked: '仲未完成呢張證書嘅實驗。加油，做完就會解鎖！', certNameAsk: '寫低你嘅暱稱，證書就會印上你個名：',
+    certWord: '證書', certPresented: '頒發俾', certTopicBody: '完成咗以下主題嘅全部實驗', certGradBody: '完成咗小麗博士化學實驗室全部實驗',
+    certChBody: '完成咗全部升中挑戰', certDate: '日期', certSign: '小麗博士', certPrint: '列印證書', certPng: '下載圖片',
+    shareBtn: '交功課', shareTitle: '交功課俾老師', shareHow: '寫低你嘅暱稱，畫面就會出一個 QR code。俾老師用 iPad 相機掃一掃，你嘅進度就會交咗俾老師。亦可以複製連結，用其他方法傳俾老師。',
+    shareQr: '交功課 QR code', shareScan: '請老師用 iPad 相機掃呢個 QR code。', copyLink: '複製連結', copied: '已經複製', copyFail: '複製唔到，請長按連結自己複製。',
+    shareNeedName: '請先寫低你嘅暱稱。', privacyNote: '私隱：資料只會存喺呢部機同老師部機入面，唔會上傳去任何伺服器。唔好寫全名。',
+    teacherBtn: '老師專區', teacherTitle: '老師專區', gateTitle: '大人專用', gatePin: '請輸入老師密碼：', gateMath: '請答：{a} × {b} = ？', gateWrong: '唔啱，請再試。', gateGo: '進入',
+    importOk: '已經將 {n} 嘅進度加入班表。', importBad: '呢條連結睇唔明，請學生再交一次。',
+    classTitle: '全班進度（{n} 位學生）', classHow: '學生撳「交功課」，你用 iPad 相機掃佢嘅 QR code，就會加入呢度。同一個暱稱再交，會更新做最新進度。', classEmpty: '仲未有學生交功課。',
+    csvName: '暱稱', csvTime: '最後交功課', csvDone: '完成實驗', csvStars: '星星', csvCh: '升中挑戰', details: '睇詳細',
+    removeStu: '刪除 {n}', removeConfirm: '確定刪除 {n}？', exportCsv: '匯出 CSV', printReport: '列印報告', pasteLabel: '或者貼上學生嘅連結', pasteAdd: '加入',
+    taskTitle: '今日任務', taskHow: '剔選今日要做嘅實驗，再俾學生掃 QR code 或者打開連結。學生主頁頂部就會顯示呢幾個實驗。', taskWithCh: '同時開放升中挑戰',
+    taskShare: '俾學生用 iPad 相機掃，或者複製連結放喺 Google Classroom 等平台。', pinTitle: '老師密碼', pinOn: '已經設定密碼：入老師專區要輸入密碼。',
+    pinOff: '未設定密碼：入老師專區要答一條乘數題。設定 4–6 位數字密碼可以更安全。', pinSave: '儲存密碼', pinClear: '取消密碼',
+    taskBanner: '📋 老師今日揀咗呢幾個實驗：', taskClear: '完成，清除任務',
+    skipToMain: '跳到主要內容', stageAlt: '3D 實驗室畫面：{t}。可以用下面嘅「示範俾我睇」同工具掣完成每一步。',
   },
   en: {
     appTitle: "Dr. Lily's Chemistry Lab",
@@ -144,6 +195,33 @@ export const UI = {
     star_finish: 'Finished', star_self: 'Did it yourself', star_quiz: 'Right first time',
     starsTitle: 'Star collection', starsHow: 'Each experiment has three stars: finish it, do every step yourself (no "Show me"), and get the thinking challenge right first time.',
     topicWord: 'Topic', openLesson: 'Open', comingName: 'Coming: ',
+    challenge: 'Secondary Challenge', challengeTag: '🎓 Secondary Challenge', challengeLocked: 'Finish the basic experiment first to unlock its Secondary Challenge, or switch on Secondary mode in Settings.',
+    challengeDone: 'Secondary Challenge done', challengeFinishText: "Brilliant! You finished the Secondary Challenge and can explain this experiment with proper terms and chemical equations. You're ready for secondary school!",
+    tag_term: 'Key terms', tag_equation: 'Chemical equations', tag_exam: 'Exam tip',
+    wordEq: 'Word equation', symEq: 'Symbol equation', nextQ: 'Next question', qOf: 'Question {i} of {n}',
+    settings: 'Settings', settingsTitle: 'Settings', setChallengeAll: 'Secondary mode: open every Secondary Challenge',
+    setReadFormula: 'Read chemical formulae aloud (e.g. "H two O")', setTextSize: 'Text size', size_md: 'Normal', size_lg: 'Large', size_xl: 'Extra large',
+    setContrast: 'High contrast', setMotion: 'Reduce motion (no fireworks or bouncing)', setRate: 'Speaking speed', rate_slow: 'Slow', rate_normal: 'Normal', rate_fast: 'Fast',
+    setNickname: 'Your nickname (for certificates and sending work; not your full name)', nicknamePh: 'e.g. Sam',
+    newBadge: 'You earned a new badge!', badgesBtn: 'Badges & certificates', badgesTitle: 'Badges & certificates', badgesIntro: 'You have {g} of {n} badges. Finish experiments and Secondary Challenges to collect more!',
+    badgeGot: 'Earned', badgeProgress: 'Progress {a} of {n}',
+    certsTitle: 'Certificates', certsHow: 'Finish every experiment in a topic to get its certificate. Finish them all for the graduate certificate, and every Secondary Challenge for the Secondary Challenge certificate. You can print them or save them as pictures.',
+    certLocked: 'You have not finished the experiments for this certificate yet. Keep going and it will unlock!', certNameAsk: 'Type your nickname and it will appear on your certificate:',
+    certWord: 'Certificate', certPresented: 'This is awarded to', certTopicBody: 'for finishing every experiment in', certGradBody: "for finishing every experiment in Dr. Lily's Chemistry Lab",
+    certChBody: 'for finishing every Secondary Challenge', certDate: 'Date', certSign: 'Dr. Lily', certPrint: 'Print certificate', certPng: 'Save as picture',
+    shareBtn: 'Send work', shareTitle: 'Send your work to your teacher', shareHow: 'Type your nickname and a QR code will appear. Ask your teacher to scan it with an iPad camera and your progress will be sent. You can also copy the link and send it another way.',
+    shareQr: 'QR code for sending work', shareScan: 'Ask your teacher to scan this QR code with an iPad camera.', copyLink: 'Copy link', copied: 'Copied', copyFail: 'Could not copy. Press and hold the link to copy it yourself.',
+    shareNeedName: 'Please type your nickname first.', privacyNote: 'Privacy: data is only kept on this device and your teacher’s device. Nothing is uploaded to any server. Do not use your full name.',
+    teacherBtn: 'Teacher area', teacherTitle: 'Teacher area', gateTitle: 'Grown-ups only', gatePin: 'Enter the teacher PIN:', gateMath: 'Answer: {a} × {b} = ?', gateWrong: 'Not quite. Please try again.', gateGo: 'Enter',
+    importOk: '{n}’s progress has been added to your class.', importBad: 'This link could not be read. Please ask the pupil to send it again.',
+    classTitle: 'Class progress ({n} pupils)', classHow: 'Pupils tap “Send work” and you scan their QR code with your iPad camera to add them here. Sending again with the same nickname updates their progress.', classEmpty: 'No pupils have sent work yet.',
+    csvName: 'Nickname', csvTime: 'Last sent', csvDone: 'Experiments done', csvStars: 'Stars', csvCh: 'Secondary Challenges', details: 'Details',
+    removeStu: 'Remove {n}', removeConfirm: 'Remove {n}?', exportCsv: 'Export CSV', printReport: 'Print report', pasteLabel: 'Or paste a pupil’s link', pasteAdd: 'Add',
+    taskTitle: 'Today’s task', taskHow: 'Tick the experiments for today, then let pupils scan the QR code or open the link. These experiments will appear at the top of their home page.', taskWithCh: 'Also open the Secondary Challenges',
+    taskShare: 'Let pupils scan this with an iPad camera, or copy the link into Google Classroom or a similar platform.', pinTitle: 'Teacher PIN', pinOn: 'A PIN is set: it is needed to enter the teacher area.',
+    pinOff: 'No PIN set: a times-table question guards the teacher area. Set a 4–6 digit PIN for extra safety.', pinSave: 'Save PIN', pinClear: 'Remove PIN',
+    taskBanner: '📋 Your teacher picked these experiments for today:', taskClear: 'Done, clear the task',
+    skipToMain: 'Skip to main content', stageAlt: '3D lab: {t}. You can finish every step with "Show me" and the tool buttons below.',
   },
 };
 export const makeT = (lang) => (k, vars) => {

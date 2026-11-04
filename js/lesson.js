@@ -151,8 +151,8 @@ export function LessonView({ mod, onBack, mode = 'basic' }) {
     const st = L.steps[stepRef.current];
     if (!st.action || !ctrl.current || demoRef.current || doneRef.current.has(st.action.id)) return;
     demoRef.current = true; setDemoing(true);
-    // 看門狗：示範 60 秒都未完（或者出錯），都收返「示範緊」，俾小朋友再撳
-    try { await Promise.race([ctrl.current.demo(st.action.id), sleep(60000)]); } catch (e) { console.warn('demo', e); } finally { demoRef.current = false; setDemoing(false); }
+    // 看門狗：示範 2 分鐘都未完（或者出錯），都收返「示範緊」，俾小朋友再撳
+    try { await Promise.race([ctrl.current.demo(st.action.id), sleep(120000)]); } catch (e) { console.warn('demo', e); } finally { demoRef.current = false; setDemoing(false); }
   }, [L]);
   const demoThenNext = useCallback(async () => {
     const my = ++autoTok.current;

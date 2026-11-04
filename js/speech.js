@@ -59,8 +59,10 @@ export const Speech = (() => {
   // 冇語音時用嘅估計時間（等自動播放唔會一下子衝晒）
   const EST_SCALE = /[?&]fast=1/.test(location.search) ? 0.04 : 1; // 測試用
   const est = (s) => Math.max(700 * EST_SCALE, (lang === 'zh-HK' ? s.length * 230 : s.length * 68) * EST_SCALE);
-  // 一句最多讀幾耐：估計時間 × 2 ＋ 3 秒（語速慢就長啲）
-  const capOf = (s) => est(s) * 2 * (0.92 / rate) + 3000;
+  // 一句最多讀幾耐：估計時間 × 2 ＋ 3 秒（語速慢就長啲）。
+  // 語音引擎試過唔報讀完（stuck），之後就用正常估計時間，等示範唔會好慢；引擎好返（有 onend）就還原
+  let stuck = false;
+  const capOf = (s) => (stuck ? est(s) * 1.15 + 400 : est(s) * 2 + 3000) * (0.92 / rate);
 
   function finishAll(my) {
     if (my !== token) return;
@@ -86,11 +88,11 @@ export const Speech = (() => {
       const minMs = (forceEst || !voices.length) ? est(text) * 0.9 : 0;
       setTimeout(advance, Math.max(0, minMs - el));
     };
-    u.onend = () => end(false);
+    u.onend = () => { stuck = false; end(false); };
     u.onerror = (e) => { if (e && (e.error === 'interrupted' || e.error === 'canceled')) return; end(true); };
     cur = u;
     // 看門狗：語音引擎冇報讀完都好，夠鐘就讀下一句（唔再靠 synth.speaking）
-    setTimeout(() => { if (!u._done && my === token) { try { synth.cancel(); } catch (e) { /* ignore */ } end(false); } }, capOf(text));
+    setTimeout(() => { if (!u._done && my === token) { stuck = true; try { synth.cancel(); } catch (e) { /* ignore */ } end(false); } }, capOf(text));
     try { synth.speak(u); } catch (e) { end(true); }
   }
   // 保險：有啲裝置唔觸發 onend
@@ -131,14 +133,14 @@ export const Speech = (() => {
     if (!synth) return;
     try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; synth.speak(u); } catch (e) { /* ignore */ }
   }
-  // 等讀完：max（毫秒）預設 = 剩低文字嘅最長時間 ＋ 5 秒，最多 30 秒；
+  // 等讀完：max（毫秒）預設 = 剩低文字嘅最長時間 ＋ 2 秒，最多 30 秒（每句已經有看門狗，呢個係最後保險）；
   // ignorePause：暫停都當讀完（示範唔使等）；否則暫停期間唔計時（自動播放尊重暫停）
   function waitIdle({ max, ignorePause = false } = {}) {
     const ok = () => isIdle() || (ignorePause && state.paused && !pending);
     return new Promise((res) => {
       if (ok()) { setTimeout(res, 0); return; }
       const left = chunks.slice(idx).reduce((a, c) => a + capOf(c), 0) + (pending ? capOf(pending.text) : 0);
-      const ms = max ?? Math.min(30000, left + 5000);
+      const ms = max ?? Math.min(30000, left + 2000);
       const w = { ok, res };
       const arm = () => { w.t = setTimeout(() => { if (!waiters.has(w)) return; if (state.paused && !ignorePause) { arm(); return; } waiters.delete(w); res(); }, ms); };
       arm(); waiters.add(w);
